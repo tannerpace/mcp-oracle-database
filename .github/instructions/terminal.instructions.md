@@ -1,86 +1,101 @@
-# 🧠 Copilot Terminal Command Guidelines
+# Terminal Command Guidelines
 
-These rules are designed for this development environment (macOS + zsh + VS Code integrated terminal).  
-You **may execute shell commands**, but follow these rules to prevent terminal resets or lost sessions.
+## Purpose
+- Provide safe, reliable guidance for running shell commands in this development environment (macOS + zsh + VS Code integrated terminal).
+- Prevent terminal disconnects and lost sessions by favoring small, testable commands and file-based scripts over large inline scripts.
 
----
+## Scope
+- Applies to interactive use of the VS Code integrated terminal while working on this repository.
+- Not meant to restrict developer workflows — follow these guidelines when an integrated terminal session is used for automation, tests, or demonstration.
 
-## ⚙️ General Behavior
+## Principles (why these rules matter)
+- Keep terminal interactions small and observable to avoid crashing the terminal.
+- Prefer files for larger logic so the editor can provide syntax checking, diffs, and version control.
+- Use explicit, reproducible commands that other contributors can run.
 
-- ✅ You **can run short shell commands** directly in the integrated terminal.
+## Rules
+
+### 1. Run short commands interactively
+- Single-line or short multi-segment commands are allowed.
   Examples:
-  ```bash
-  cd src && npm run dev
-  git pull origin main
-  nvm use
-  ```
+  - `cd src && npm run dev`
+  - `git pull origin main`
+  - `nvm use`
 
-- 🚫 **Do not generate or execute giant multiline terminal commands** (such as heredocs using `<<EOF` or long Python scripts inline).
-  These cause the VS Code terminal to disconnect.
-  Instead, write files explicitly and then run them. Example:
-  ```bash
-  echo "print('hello')" > temp_script.py && python3 temp_script.py
-  ```
+### 2. Avoid large inline scripts
+- Do not paste or run multiline scripts that exceed the limits below. These often cause the VS Code terminal to disconnect.
+  Limits (guidelines):
+  - Inline scripting blocks: avoid > ~10 lines.
+  - Command length: avoid > ~500 characters.
+  - Inline scripts: avoid > ~15 lines; prefer files for anything larger.
+- If you need more logic, create a script file and run it (see File-based workflow below).
 
-- 🚫 **Avoid inline scripting blocks** longer than ~10 lines or commands over ~500 characters total length.
-  If a script or command exceeds these limits, create a file in the appropriate directory (`src/`, `scripts/`, etc.) instead.
+### 3. Prefer file-based workflows
+- Create files in the repo (for example: `scripts/`, `src/`, `tools/`) and execute them from the terminal.
+  Example:
+  - `echo "print('hello')" > scripts/temp_script.py && python3 scripts/temp_script.py`
+- Benefits:
+  - Editor and git can review changes
+  - Easier to test, lint, and reuse
+  - Avoids long inline execution that can disconnect the terminal
 
----
+### 4. Restrict heredoc usage
+- Heredocs are acceptable only for very small snippets (under ~5 lines).
+- For anything larger, write the content to a file in the editor or via `echo`/`cat` with a small body.
 
-## 🪄 Environment & Tools
+### 5. Limit chained commands
+- Keep chains short and readable. Up to 3 segments with `&&` is fine:
+  - `cd src && npm run build && npm start`
+- Break longer workflows into multiple steps or scripts.
 
-- Always use the current shell session. Don't reinitialize the terminal or re-source `.zshrc`.
+## Environment and tools
+- Use the current interactive shell. Do not reinitialize or re-source shell configuration files (e.g., avoid re-running `source ~/.zshrc` unnecessarily).
+- Respect the repository Node version: run `nvm use` rather than setting Node manually.
+- Use `python3` for Python execution.
+- Use `pnpm` for package installs when available.
 
-- Assume Node version is managed by `.nvmrc`. Use:
-  ```bash
-  nvm use
-  ```
-  instead of manually setting Node versions.
+## Execution style — examples and patterns
 
-- Use `python3` for Python scripts, not system Python.
-
-- Use `pnpm` for Node package installs when available.
-
----
-
-## 🧩 Execution Style
-
-- When creating or modifying files, prefer commands like:
-  ```bash
-  echo 'const config = {};' > src/config.ts
-  ```
-  For slightly larger content (under 5 lines), you can use heredocs:
-  ```bash
-  cat > src/config.ts << 'EOF'
-  // small file content
-  EOF
-  ```
-  but only for **small snippets**.
-
-- If Copilot suggests writing more than ~15 lines of content, split it into two steps:
-  1. Create the file via VS Code's editor.
-  2. Run terminal commands to test or execute it.
-
-- Avoid chain commands longer than 3 segments with `&&`. Example:
-  ```bash
-  cd src && npm run build && npm start
-  ```
-  is okay.
-  Anything longer should be broken up.
-
----
-
-## ⚠️ Error Handling
-
-If a command fails or prints:
+### Safe single command
+```bash
+git checkout -b feature/x && git push --set-upstream origin feature/x
 ```
-Restarting the terminal because the connection to the shell process was lost...
+
+### Small file creation (recommended for snippets)
+```bash
+echo 'const config = {};' > src/config.ts
 ```
-Then **stop** and rewrite the workflow to use smaller chunks or file-based execution.
 
----
+### Small heredoc (acceptable only for tiny files)
+```bash
+cat > scripts/example.sh << 'EOF'
+#!/usr/bin/env bash
+echo "small script"
+EOF
+```
 
-## ✨ Goal
+### File-based for larger logic (recommended)
+1. Create: `scripts/run-report.py` (use VS Code editor).
+2. Run: `python3 scripts/run-report.py`
 
-Keep terminal commands **small, readable, and reliable** — never so large that they crash or disconnect the integrated terminal.
-**When in doubt: write code to a file, then execute it.**
+## Error handling and troubleshooting
+- If the terminal prints:
+  ```
+  Restarting the terminal because the connection to the shell process was lost...
+  ```
+  — Stop. Do not continue running large or complex inline commands. Rework the steps to smaller commands or write the script to a file and run it.
+- When a command fails, inspect logs or stdout/stderr before retrying extra commands.
+
+## Quick checklist before running a non-trivial command
+- Is the command under 500 characters and fewer than ~10 lines? If not, use a file.
+- Can the logic be committed or reviewed? If yes, create a file.
+- Will the editor help (syntax highlight, linting, tests)? Prefer that workflow.
+- Is `nvm use` needed to guarantee the Node version? If so, run it first.
+
+## Summary (best practice)
+- Keep commands small and explicit.
+- Favor file-based scripts for anything beyond trivial snippets.
+- Use the provided toolchain (`nvm`, `pnpm`, `python3`).
+- Break complex workflows into steps that are easy to review and reproduce.
+
+If in doubt, create the file in the repo using the editor, commit or stage it if appropriate, then run it from the terminal.
