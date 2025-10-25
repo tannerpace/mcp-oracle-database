@@ -27,24 +27,9 @@ GitHub Copilot
 ## Prerequisites
 
 1. **Node.js** v18 or higher
-2. **Oracle Instant Client** (required by node-oracledb)
-3. **Oracle Database** with a read-only user created
+2. **Oracle Database** with a read-only user created
 
-### Installing Oracle Instant Client
-
-**macOS** (using Homebrew):
-```bash
-brew tap InstantClientTap/instantclient
-brew install instantclient-basic
-```
-
-Or download manually from [Oracle Instant Client Downloads](https://www.oracle.com/database/technologies/instant-client/macos-intel-x86-downloads.html)
-
-**Linux**:
-Download from [Oracle Instant Client Downloads](https://www.oracle.com/database/technologies/instant-client/downloads.html)
-
-**Windows**:
-Download from [Oracle Instant Client Downloads](https://www.oracle.com/database/technologies/instant-client/downloads.html)
+**Note:** This project uses the node-oracledb package in **Thin Mode**, which means **no Oracle Instant Client installation is required**! The pure JavaScript driver connects directly to Oracle Database, just like Python's oracledb library.
 
 ## Setup
 
@@ -275,14 +260,6 @@ Set `LOG_LEVEL=debug` in `.env` for more verbose logging.
 
 ## Troubleshooting
 
-### Oracle Client Not Found
-
-```
-Error: DPI-1047: Cannot locate a 64-bit Oracle Client library
-```
-
-**Solution:** Install Oracle Instant Client (see Prerequisites above).
-
 ### Connection Failed
 
 ```
@@ -298,6 +275,15 @@ Error: ORA-00942: table or view does not exist
 ```
 
 **Solution:** Grant SELECT privileges to your read-only user on the required tables.
+
+### Thin Mode vs Thick Mode
+
+This project uses **Thin Mode** (pure JavaScript, no Oracle Client needed). If you encounter issues and want to use Thick Mode:
+
+1. Install Oracle Instant Client
+2. Add to your code: `oracledb.initOracleClient()` before creating the pool
+
+For most use cases, Thin Mode is simpler and works great!
 
 ## License
 
