@@ -1,0 +1,7 @@
+{
+  "databaseAdmin": {
+    "tools": ["query_database", "get_database_schema"],
+    "description": "Oracle database query and schema introspection tools",
+    "icon": "database"
+  }
+}
