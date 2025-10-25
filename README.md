@@ -28,8 +28,46 @@ GitHub Copilot
 
 1. **Node.js** v18 or higher
 2. **Oracle Database** with a read-only user created
+   - Running locally (Docker recommended)
+   - Or accessible remote instance
 
 **Note:** This project uses the node-oracledb package in **Thin Mode**, which means **no Oracle Instant Client installation is required**! The pure JavaScript driver connects directly to Oracle Database, just like Python's oracledb library.
+
+### Optional: Running Oracle Database Locally with Docker
+
+If you need a local Oracle database for development:
+
+**macOS (using Colima):**
+```bash
+# Start Colima (Docker runtime for macOS)
+colima start
+
+# Pull and run Oracle XE container
+docker run -d \
+  --name oracle-xe \
+  -p 1521:1521 \
+  -p 5500:5500 \
+  -e ORACLE_PWD=OraclePwd123 \
+  container-registry.oracle.com/database/express:latest
+
+# Wait for database to be ready (takes 1-2 minutes)
+docker logs -f oracle-xe
+
+# Start/stop the database later
+docker start oracle-xe
+docker stop oracle-xe
+```
+
+**Linux/Other:**
+```bash
+# Same docker commands as above, just ensure Docker is running
+docker ps
+```
+
+The database will be available at:
+- **Connection:** `localhost:1521/XEPDB1`
+- **SYS password:** `OraclePwd123`
+- **Web UI:** http://localhost:5500/em
 
 ## Setup
 
@@ -260,13 +298,42 @@ Set `LOG_LEVEL=debug` in `.env` for more verbose logging.
 
 ## Troubleshooting
 
+### Docker/Colima Issues (macOS)
+
+**Docker not running:**
+```bash
+# Check if Colima is running
+colima status
+
+# Start Colima if needed
+colima start
+
+# Verify Docker works
+docker ps
+```
+
+**Database won't start:**
+```bash
+# Check container status
+docker ps -a | grep oracle
+
+# View logs
+docker logs oracle-xe
+
+# Restart if needed
+docker restart oracle-xe
+```
+
 ### Connection Failed
 
 ```
 Error: ORA-12545: Connect failed because target host or object does not exist
 ```
 
-**Solution:** Check your `ORACLE_CONNECTION_STRING` format: `hostname:port/servicename`
+**Solutions:**
+- Check your `ORACLE_CONNECTION_STRING` format: `hostname:port/servicename`
+- For local Docker: use `localhost:1521/XEPDB1`
+- Verify database is running: `docker ps | grep oracle`
 
 ### Permission Denied
 
@@ -275,6 +342,13 @@ Error: ORA-00942: table or view does not exist
 ```
 
 **Solution:** Grant SELECT privileges to your read-only user on the required tables.
+
+### Database Not Ready
+
+If the test client fails immediately after starting the database:
+- Wait 1-2 minutes for Oracle to fully initialize
+- Check health status: `docker ps` should show `(healthy)`
+- Watch startup logs: `docker logs -f oracle-xe`
 
 ### Thin Mode vs Thick Mode
 
