@@ -411,6 +411,16 @@ MCP_TRANSPORT=stdio  # Uses stdin/stdout for communication
 
 ---
 
+## Documentation
+
+### Integration Guides
+- ✅ [MCP Integration Guide](./docs/MCP-INTEGRATION.md) - Understanding MCP protocol and tools
+- ✅ [VS Code Integration Guide](./docs/VSCODE-INTEGRATION.md) - Set up with GitHub Copilot
+- ✅ [Claude Desktop Integration Guide](./docs/CLAUDE-INTEGRATION.md) - Set up with Claude Desktop
+
+### Test Results
+- ✅ [Test Results](./test-results.md) - Comprehensive test results with sample queries
+
 ## References
 
 - MCP Documentation: https://modelcontextprotocol.io/

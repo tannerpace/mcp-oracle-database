@@ -359,6 +359,20 @@ This project uses **Thin Mode** (pure JavaScript, no Oracle Client needed). If y
 
 For most use cases, Thin Mode is simpler and works great!
 
+## Documentation
+
+📚 **Integration Guides:**
+- [MCP Integration Guide](./docs/MCP-INTEGRATION.md) - Learn about MCP protocol, tools, and how it works
+- [VS Code Integration Guide](./docs/VSCODE-INTEGRATION.md) - Set up with GitHub Copilot (includes custom instructions)
+- [Claude Desktop Integration Guide](./docs/CLAUDE-INTEGRATION.md) - Set up with Claude Desktop
+
+📊 **Test Results:**
+- [Test Results](./test-results.md) - Comprehensive test results with example queries
+
+📝 **Custom Instructions:**
+- [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) - Project-wide Copilot instructions
+- [`.github/instructions/`](./.github/instructions/) - Language-specific coding guidelines
+
 ## License
 
 ISC
@@ -366,3 +380,4 @@ ISC
 ## Contributing
 
 Contributions welcome! Please open an issue or pull request.
+
