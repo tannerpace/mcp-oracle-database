@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { getSchema, executeQuery } from '../database/queryExecutor.js';
 import logger from '../logging/logger.js';
+import type { QueryResult } from '../database/types.js';
 
 // Input schema for get_database_schema tool
 export const GetSchemaSchema = z.object({
@@ -8,6 +9,12 @@ export const GetSchemaSchema = z.object({
 });
 
 export type GetSchemaInput = z.infer<typeof GetSchemaSchema>;
+
+// Maximum Levenshtein distance for table name suggestions
+const MAX_LEVENSHTEIN_DISTANCE = 5;
+
+// Maximum number of table suggestions to return
+const MAX_TABLE_SUGGESTIONS = 3;
 
 /**
  * Calculate Levenshtein distance between two strings for fuzzy matching
@@ -51,8 +58,8 @@ async function findSimilarTableNames(tableName: string): Promise<string[]> {
       ORDER BY table_name
     `;
     
-    const result = await executeQuery(query, { maxRows: 1000 });
-    const allTables = result.rows.map((row: any) => row.TABLE_NAME);
+    const result: QueryResult = await executeQuery(query, { maxRows: 1000 });
+    const allTables = result.rows.map((row: Record<string, any>) => row.TABLE_NAME as string);
     
     // Calculate distances and find closest matches
     const tableDistances = allTables.map((table: string) => ({
@@ -60,11 +67,11 @@ async function findSimilarTableNames(tableName: string): Promise<string[]> {
       distance: levenshteinDistance(tableName.toUpperCase(), table),
     }));
     
-    // Sort by distance and return top 3 closest matches
+    // Sort by distance and return top matches
     return tableDistances
       .sort((a, b) => a.distance - b.distance)
-      .slice(0, 3)
-      .filter(t => t.distance <= 5) // Only suggest if reasonably similar
+      .slice(0, MAX_TABLE_SUGGESTIONS)
+      .filter(t => t.distance <= MAX_LEVENSHTEIN_DISTANCE)
       .map(t => t.name);
   } catch (err) {
     logger.error('Failed to find similar table names', { error: err });
@@ -117,7 +124,12 @@ export async function getDatabaseSchema(input: GetSchemaInput = {}) {
     }
 
     // Success case with optimization note
-    const responseData: any = {
+    const responseData: {
+      success: boolean;
+      data: QueryResult;
+      hint?: string;
+      optimization_note?: string;
+    } = {
       success: true,
       data: result,
     };
