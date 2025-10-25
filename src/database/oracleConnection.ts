@@ -6,6 +6,7 @@ import type { OraclePool, OraclePoolConfig } from './types.js';
 const config = getConfig();
 
 let pool: OraclePool | null = null;
+let isClosing = false;
 
 /**
  * Create and return a connection pool for the read-only Oracle database
@@ -53,8 +54,9 @@ export async function getConnection() {
  * Close the connection pool gracefully
  */
 export async function closePool(): Promise<void> {
-  if (pool) {
+  if (pool && !isClosing) {
     try {
+      isClosing = true;
       logger.info('Closing Oracle connection pool');
       await pool.close(10); // 10 second drain timeout
       pool = null;
@@ -62,6 +64,8 @@ export async function closePool(): Promise<void> {
     } catch (err) {
       logger.error('Error closing Oracle connection pool', { error: err });
       throw err;
+    } finally {
+      isClosing = false;
     }
   }
 }
