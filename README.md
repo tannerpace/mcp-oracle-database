@@ -1,8 +1,66 @@
-# Oracle Database MCP Server
+# Database MCP Server
 
-A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs to execute read-only SQL queries against an Oracle database.
+A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs to execute read-only SQL queries against Oracle databases.
 
-## 🚀 Quick Start with VS Code
+[![npm version](https://badge.fury.io/js/mcp-oracle-database.svg)](https://www.npmjs.com/package/mcp-oracle-database)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+
+## 📦 Installation
+
+### From npm (Recommended)
+
+```bash
+npm install -g mcp-oracle-database
+```
+
+Or install locally in your project:
+
+```bash
+npm install mcp-oracle-database
+```
+
+### From Source
+
+```bash
+git clone https://github.com/tannerpace/my-mcp.git
+cd my-mcp
+npm install && npm run build
+```
+
+## �🚀 Quick Start with VS Code
+
+### If installed via npm:
+
+1. **Configure VS Code MCP settings**
+
+Create `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "oracleDatabase": {
+      "type": "stdio",
+      "command": "mcp-database-server",
+      "env": {
+        "ORACLE_CONNECTION_STRING": "localhost:1521/XEPDB1",
+        "ORACLE_USER": "your_readonly_user",
+        "ORACLE_PASSWORD": "your_password",
+        "ORACLE_POOL_MIN": "2",
+        "ORACLE_POOL_MAX": "10",
+        "QUERY_TIMEOUT_MS": "30000",
+        "MAX_ROWS_PER_QUERY": "1000"
+      }
+    }
+  }
+}
+```
+
+2. **Reload VS Code and ask Copilot:**
+```
+"What tables are in the database?"
+```
+
+### If running from source:
 
 ```bash
 # 1. Build the server

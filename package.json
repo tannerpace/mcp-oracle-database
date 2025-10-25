@@ -1,20 +1,52 @@
 {
-  "name": "my-mcp",
+  "name": "mcp-oracle-database",
   "version": "1.0.0",
-  "description": "MCP server for Oracle database queries via GitHub Copilot",
+  "description": "Model Context Protocol (MCP) server for database queries - enables AI assistants like GitHub Copilot to execute read-only SQL queries against Oracle databases",
   "main": "dist/server.js",
   "type": "module",
+  "bin": {
+    "mcp-database-server": "dist/server.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/server.js",
     "test-client": "node dist/client.js",
     "clean": "rm -rf dist",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run clean && npm run build"
   },
-  "keywords": ["mcp", "oracle", "database", "copilot"],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "database",
+    "sql",
+    "copilot",
+    "github-copilot",
+    "ai",
+    "llm",
+    "vscode",
+    "oracle",
+    "oracle-database"
+  ],
   "author": "Tanner B",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tannerpace/my-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tannerpace/my-mcp/issues"
+  },
+  "homepage": "https://github.com/tannerpace/my-mcp#readme",
+  "engines": {
+    "node": ">=18.17.0"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",
     "zod": "^3.25.76",

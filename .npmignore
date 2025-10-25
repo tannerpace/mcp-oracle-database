@@ -1,0 +1,31 @@
+# Source files
+src/
+tsconfig.json
+
+# Development files
+.env
+.env.example
+*.log
+logs/
+
+# VS Code
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Documentation (keep README.md)
+docs/
+PLAN.md
+TESTING.md
+
+# Test files
+src/client.ts
+src/test-*.ts
+*.test.ts
+*.spec.ts
+
+# Build artifacts
+node_modules/
+.DS_Store
