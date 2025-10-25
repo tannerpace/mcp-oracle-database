@@ -22,8 +22,8 @@ You **may execute shell commands**, but follow these rules to prevent terminal r
   echo "print('hello')" > temp_script.py && python3 temp_script.py
   ```
 
-- 🚫 **Avoid inline scripting blocks** longer than ~10 lines or over 500 characters.
-  If a script needs that, create a file in the appropriate directory (`src/`, `scripts/`, etc.) instead.
+- 🚫 **Avoid inline scripting blocks** longer than ~10 lines or commands over ~500 characters total length.
+  If a script or command exceeds these limits, create a file in the appropriate directory (`src/`, `scripts/`, etc.) instead.
 
 ---
 
@@ -47,8 +47,12 @@ You **may execute shell commands**, but follow these rules to prevent terminal r
 
 - When creating or modifying files, prefer commands like:
   ```bash
-  tee src/config.ts > /dev/null <<'EOF'
-  // file content
+  echo 'const config = {};' > src/config.ts
+  ```
+  For slightly larger content (under 5 lines), you can use heredocs:
+  ```bash
+  cat > src/config.ts << 'EOF'
+  // small file content
   EOF
   ```
   but only for **small snippets**.
