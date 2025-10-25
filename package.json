@@ -1,17 +1,28 @@
 {
   "name": "my-mcp",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "MCP server for Oracle database queries via GitHub Copilot",
+  "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/server.js",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
+  "keywords": ["mcp", "oracle", "database", "copilot"],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "oracledb": "^6.4.0",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.5"
   }
 }
