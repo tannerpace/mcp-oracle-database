@@ -2,6 +2,24 @@
 
 A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs to execute read-only SQL queries against an Oracle database.
 
+## 🚀 Quick Start with VS Code
+
+```bash
+# 1. Build the server
+npm install && npm run build
+
+# 2. Configure VS Code
+cp .vscode/mcp.json.example .vscode/mcp.json
+
+# 3. Start Oracle database (if using Docker)
+docker start oracle-xe
+
+# 4. Reload VS Code and ask Copilot:
+"What tables are in the database?"
+```
+
+See [Quick Start Guide](./docs/QUICK-START-VSCODE.md) for detailed setup.
+
 ## Features
 
 - 🔒 **Read-only access** - Uses a dedicated read-only database user for security
@@ -365,6 +383,8 @@ For most use cases, Thin Mode is simpler and works great!
 - [MCP Integration Guide](./docs/MCP-INTEGRATION.md) - Learn about MCP protocol, tools, and how it works
 - [VS Code Integration Guide](./docs/VSCODE-INTEGRATION.md) - Set up with GitHub Copilot (includes custom instructions)
 - [Claude Desktop Integration Guide](./docs/CLAUDE-INTEGRATION.md) - Set up with Claude Desktop
+- [Quick Start Guide](./docs/QUICK-START-VSCODE.md) - Get started with VS Code in 3 steps ⚡
+- [VS Code Agent Mode Plan](./docs/VSCODE-AGENT-MODE-PLAN.md) - Implementation details and troubleshooting
 
 📊 **Test Results:**
 - [Test Results](./test-results.md) - Comprehensive test results with example queries

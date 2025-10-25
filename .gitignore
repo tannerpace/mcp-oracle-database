@@ -4,3 +4,6 @@ dist/
 logs/
 *.log
 .DS_Store
+
+# VS Code MCP configuration (may contain credentials)
+.vscode/mcp.json

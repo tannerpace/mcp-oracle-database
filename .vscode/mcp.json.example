@@ -1,0 +1,41 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schema/mcp.json",
+  "servers": {
+    "oracleDatabase": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/dist/server.js"],
+      "env": {
+        "ORACLE_CONNECTION_STRING": "${input:oracleConnectionString}",
+        "ORACLE_USER": "${input:oracleUser}",
+        "ORACLE_PASSWORD": "${input:oraclePassword}",
+        "ORACLE_POOL_MIN": "2",
+        "ORACLE_POOL_MAX": "10",
+        "QUERY_TIMEOUT_MS": "30000",
+        "MAX_ROWS_PER_QUERY": "1000",
+        "LOG_LEVEL": "info",
+        "ENABLE_AUDIT_LOGGING": "true"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "oracleConnectionString",
+      "description": "Oracle connection string (host:port/service)",
+      "default": "localhost:1521/XEPDB1"
+    },
+    {
+      "type": "promptString",
+      "id": "oracleUser",
+      "description": "Oracle database username",
+      "default": "system"
+    },
+    {
+      "type": "promptString",
+      "id": "oraclePassword",
+      "description": "Oracle database password",
+      "password": true
+    }
+  ]
+}
