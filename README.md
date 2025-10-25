@@ -34,9 +34,11 @@ GitHub Copilot
 
 **macOS** (using Homebrew):
 ```bash
-brew tap homebrew/cask
-brew install --cask oracle-instant-client
+brew tap InstantClientTap/instantclient
+brew install instantclient-basic
 ```
+
+Or download manually from [Oracle Instant Client Downloads](https://www.oracle.com/database/technologies/instant-client/macos-intel-x86-downloads.html)
 
 **Linux**:
 Download from [Oracle Instant Client Downloads](https://www.oracle.com/database/technologies/instant-client/downloads.html)
@@ -144,6 +146,29 @@ Or use environment variables from your shell:
 
 Once configured, the MCP server provides two tools to GitHub Copilot:
 
+### Testing with the Built-in Client
+
+Before integrating with Copilot, you can test the server locally:
+
+```bash
+# Make sure you have .env configured with valid Oracle credentials
+npm run build
+npm run test-client
+```
+
+This will:
+1. Start the MCP server
+2. Connect to it via the test client
+3. List available tools
+4. Get database schema (list all tables)
+5. Disconnect and shut down
+
+Edit `src/client.ts` to customize the test queries.
+
+### Using with GitHub Copilot
+
+Once configured, the MCP server provides two tools to GitHub Copilot:
+
 ### 1. `query_database`
 
 Execute read-only SQL queries:
@@ -194,6 +219,7 @@ Copilot: [calls get_database_schema with tableName="CUSTOMERS"]
 my-mcp/
 ├── src/
 │   ├── server.ts              # Main MCP server entry point
+│   ├── client.ts              # Test client for local testing
 │   ├── config.ts              # Configuration with Zod validation
 │   ├── database/
 │   │   ├── types.ts           # TypeScript types
@@ -213,11 +239,12 @@ my-mcp/
 ### Scripts
 
 ```bash
-npm run build      # Compile TypeScript
-npm run dev        # Watch mode compilation
-npm run clean      # Remove dist folder
-npm run typecheck  # Type check without compiling
-npm start          # Run the server (after building)
+npm run build       # Compile TypeScript
+npm run dev         # Watch mode compilation
+npm run clean       # Remove dist folder
+npm run typecheck   # Type check without compiling
+npm start           # Run the server (after building)
+npm run test-client # Run test client to verify server works
 ```
 
 ### Logging
