@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "keywords": ["mcp", "oracle", "database", "copilot"],
-  "author": "",
+  "author": "Tanner B",
   "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",
