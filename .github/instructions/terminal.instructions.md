@@ -33,7 +33,7 @@
 ### 3. Prefer file-based workflows
 - Create files in the repo (for example: `scripts/`, `src/`, `tools/`) and execute them from the terminal.
   Example:
-  - `echo "print('hello')" > scripts/temp_script.py && python3 scripts/temp_script.py`
+  - `echo "console.log('hello')" > scripts/temp_script.js && node scripts/temp_script.js`
 - Benefits:
   - Editor and git can review changes
   - Easier to test, lint, and reuse
@@ -51,8 +51,7 @@
 ## Environment and tools
 - Use the current interactive shell. Do not reinitialize or re-source shell configuration files (e.g., avoid re-running `source ~/.zshrc` unnecessarily).
 - Respect the repository Node version: run `nvm use` rather than setting Node manually.
-- Use `python3` for Python execution.
-- Use `pnpm` for package installs when available.
+- Use `npm` for package management (this project uses npm, not pnpm or yarn).
 
 ## Execution style — examples and patterns
 
@@ -75,8 +74,8 @@ EOF
 ```
 
 ### File-based for larger logic (recommended)
-1. Create: `scripts/run-report.py` (use VS Code editor).
-2. Run: `python3 scripts/run-report.py`
+1. Create: `scripts/run-report.js` (use VS Code editor).
+2. Run: `node scripts/run-report.js`
 
 ## Error handling and troubleshooting
 - If the terminal prints:
@@ -95,7 +94,7 @@ EOF
 ## Summary (best practice)
 - Keep commands small and explicit.
 - Favor file-based scripts for anything beyond trivial snippets.
-- Use the provided toolchain (`nvm`, `pnpm`, `python3`).
+- Use the provided toolchain (`nvm`, `npm`, `node`).
 - Break complex workflows into steps that are easy to review and reproduce.
 
 If in doubt, create the file in the repo using the editor, commit or stage it if appropriate, then run it from the terminal.
