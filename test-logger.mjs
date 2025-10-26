@@ -8,8 +8,9 @@ import { logger, audit } from './dist/utils/logger.js';
 import fs from 'fs';
 
 // Setup test environment
+const LOG_DIR = '/tmp/logger-integration-test';
 process.env.ENABLE_FILE_LOGGING = 'true';
-process.env.LOG_DIR = '/tmp/logger-integration-test';
+process.env.LOG_DIR = LOG_DIR;
 process.env.ENABLE_AUDIT_LOGGING = 'true';
 process.env.NODE_ENV = 'development';
 
@@ -18,9 +19,8 @@ console.log('  Logger Integration Test');
 console.log('========================================\n');
 
 // Clean up any previous test logs
-const logDir = '/tmp/logger-integration-test';
-if (fs.existsSync(logDir)) {
-  fs.rmSync(logDir, { recursive: true });
+if (fs.existsSync(LOG_DIR)) {
+  fs.rmSync(LOG_DIR, { recursive: true });
 }
 
 // Re-import logger after env setup
@@ -46,11 +46,11 @@ console.log('Test 3: Audit logging');
 testAudit('Test audit event', { action: 'test', timestamp: new Date().toISOString() });
 console.log('✓ Audit logging test passed\n');
 
-// Test 4: File logging
+// Test 4: File logging verification
 console.log('Test 4: File logging verification');
 await new Promise(resolve => setTimeout(resolve, 200)); // Wait for async file writes
 
-const files = fs.readdirSync(logDir);
+const files = fs.readdirSync(LOG_DIR);
 if (files.length === 0) {
   console.error('✗ No log files created!');
   process.exit(1);
@@ -59,13 +59,16 @@ if (files.length === 0) {
 const logFile = files[0];
 console.log(`✓ Log file created: ${logFile}`);
 
-const content = fs.readFileSync(`${logDir}/${logFile}`, 'utf-8');
+const content = fs.readFileSync(`${LOG_DIR}/${logFile}`, 'utf-8');
 const lines = content.trim().split('\n');
 console.log(`✓ Log file contains ${lines.length} entries`);
 
-// Verify log file format
-const hasTimestamp = lines.every(line => line.match(/^\d{4}-\d{2}-\d{2}T/));
-const hasLogLevel = lines.every(line => line.includes('INFO:') || line.includes('WARN:') || line.includes('ERROR:') || line.includes('DEBUG:'));
+// Verify log file format - should match: YYYY-MM-DDTHH:MM:SS.sssZ LEVEL: message
+const timestampPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/;
+const logLevelPattern = /\s+(INFO|WARN|ERROR|DEBUG):\s+/;
+
+const hasTimestamp = lines.every(line => timestampPattern.test(line));
+const hasLogLevel = lines.every(line => logLevelPattern.test(line));
 
 if (!hasTimestamp) {
   console.error('✗ Log entries missing timestamps!');
@@ -90,7 +93,7 @@ if (logFile !== expectedFilename) {
 console.log(`✓ Daily rotation working: ${expectedFilename}`);
 
 // Cleanup
-fs.rmSync(logDir, { recursive: true });
+fs.rmSync(LOG_DIR, { recursive: true });
 
 console.log('\n========================================');
 console.log('  ✅ All tests passed!');

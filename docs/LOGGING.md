@@ -161,7 +161,7 @@ Log files are automatically rotated daily based on the current date:
 
 - **Automatic**: New file created each day with format `app-YYYY-MM-DD.log`
 - **No cleanup**: Old logs are preserved (implement external log rotation if needed)
-- **Concurrent safe**: Multiple processes can write to the same log file
+- **Single process**: Designed for single-process applications (for multi-process setups, consider a more robust solution)
 
 ### Managing Old Logs
 
