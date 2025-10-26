@@ -1,6 +1,6 @@
 import oracledb from 'oracledb';
 import getConfig from '../config.js';
-import logger, { audit } from '../logging/logger.js';
+import logger, { audit } from '../utils/logger.js';
 import { getConnection } from './oracleConnection.js';
 import type { QueryResult } from './types.js';
 
