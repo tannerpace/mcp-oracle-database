@@ -8,7 +8,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import getConfig from './config.js';
 import { closePool } from './database/oracleConnection.js';
-import logger from './logging/logger.js';
+import logger from './utils/logger.js';
 import { getDatabaseSchema, GetSchemaSchema } from './tools/getSchema.js';
 import { queryDatabase, QueryDatabaseSchema } from './tools/queryDatabase.js';
 

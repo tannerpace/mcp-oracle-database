@@ -1,6 +1,6 @@
 import oracledb from 'oracledb';
 import getConfig from '../config.js';
-import logger from '../logging/logger.js';
+import logger from '../utils/logger.js';
 import type { OraclePool, OraclePoolConfig } from './types.js';
 
 const config = getConfig();

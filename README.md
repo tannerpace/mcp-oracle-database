@@ -200,6 +200,9 @@ MAX_QUERY_LENGTH=50000
 # Logging
 LOG_LEVEL=info
 ENABLE_AUDIT_LOGGING=true
+ENABLE_FILE_LOGGING=true
+LOG_DIR=./logs
+NODE_ENV=development
 ```
 
 ### 4. Build the Server
