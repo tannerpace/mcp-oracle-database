@@ -16,7 +16,7 @@ We take the security of the MCP Oracle Database project seriously. If you believ
 ### Please do the following:
 
 1. **Do not** open a public GitHub issue for security vulnerabilities
-2. Email your findings to **[tanner@tannerpace.com]** (replace with actual security contact)
+2. Use GitHub's private vulnerability reporting feature, or email security concerns to the repository owner
 3. Include detailed steps to reproduce the vulnerability
 4. Allow reasonable time for us to respond before public disclosure
 
