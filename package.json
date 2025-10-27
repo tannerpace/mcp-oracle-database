@@ -19,7 +19,8 @@
     "test-client": "node dist/client.js",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run clean && npm run build"
+    "audit": "npm audit --audit-level=moderate",
+    "prepublishOnly": "npm run clean && npm run build && npm run audit"
   },
   "keywords": [
     "mcp",

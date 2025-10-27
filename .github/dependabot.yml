@@ -1,0 +1,42 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    # Automatically merge security updates
+    open-pull-requests-limit: 10
+    # Group all dependencies in one PR
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    # Specify reviewers and assignees
+    reviewers:
+      - "tannerpace"
+    labels:
+      - "dependencies"
+      - "security"
+    # Increase the version requirement to allow both compatible updates
+    versioning-strategy: increase
+    # Keep lockfile up to date
+    allow:
+      - dependency-type: "all"
+    # Enable security updates
+    insecure-external-code-execution: deny
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    reviewers:
+      - "tannerpace"

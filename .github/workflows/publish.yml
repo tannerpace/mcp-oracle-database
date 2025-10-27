@@ -1,0 +1,98 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+        type: string
+
+# Minimal permissions - only what's needed
+permissions:
+  contents: read
+  id-token: write  # Required for provenance
+
+jobs:
+  publish:
+    name: Publish Package
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: npm-publish
+      url: https://www.npmjs.com/package/mcp-oracle-database
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+      
+      - name: Install dependencies (read-only lockfile)
+        run: npm ci
+      
+      - name: Run security audit
+        run: npm audit --audit-level=moderate
+      
+      - name: Type check
+        run: npm run typecheck
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Verify package contents
+        run: |
+          npm pack --dry-run
+          echo "Package will contain:"
+          npm pack --dry-run 2>&1 | grep -E '\.(js|ts|json|md)$' || true
+      
+      - name: Publish to npm with provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Generate SBOM
+        run: |
+          npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+        continue-on-error: true
+      
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: sbom
+          path: sbom.json
+          retention-days: 90
+
+  verify-publish:
+    name: Verify Published Package
+    needs: publish
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Wait for package to be available
+        run: sleep 60
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      
+      - name: Install published package
+        run: |
+          npm install -g mcp-oracle-database
+          which mcp-database-server
+      
+      - name: Verify package integrity
+        run: |
+          npm view mcp-oracle-database dist.integrity
+          npm view mcp-oracle-database dist.signatures
