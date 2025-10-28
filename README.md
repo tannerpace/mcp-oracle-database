@@ -447,6 +447,10 @@ For most use cases, Thin Mode is simpler and works great!
 - [Quick Start Guide](./docs/QUICK-START-VSCODE.md) - Get started with VS Code in 3 steps ⚡
 - [VS Code Agent Mode Plan](./docs/VSCODE-AGENT-MODE-PLAN.md) - Implementation details and troubleshooting
 
+🔍 **Architecture & Code Quality:**
+- [**Code Review**](./docs/CODE-REVIEW.md) - Comprehensive architecture analysis, security review, and improvement recommendations
+- [**Improvement Roadmap**](./docs/IMPROVEMENT-ROADMAP.md) - Prioritized action items and implementation timeline
+
 📊 **Test Results:**
 - [Test Results](./test-results.md) - Comprehensive test results with example queries
 
