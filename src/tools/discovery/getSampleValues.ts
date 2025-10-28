@@ -3,6 +3,16 @@ import { getConnection } from '../../database/oracleConnection.js';
 import logger, { audit } from '../../utils/logger.js';
 import type { SampleValue } from './types.js';
 
+/**
+ * Validate Oracle identifier (table/column name) to prevent SQL injection
+ * Oracle identifiers: max 30 chars, start with letter, contain only letters, digits, _, $, #
+ */
+function validateOracleIdentifier(identifier: string): boolean {
+  // Oracle identifier rules: 1-30 chars, starts with letter, contains A-Z0-9_$#
+  const pattern = /^[A-Z][A-Z0-9_$#]{0,29}$/;
+  return pattern.test(identifier);
+}
+
 // Input schema for getSampleValues tool
 export const GetSampleValuesSchema = z.object({
   tableName: z.string().min(1, 'Table name is required'),
@@ -85,7 +95,30 @@ export async function getSampleValues(input: GetSampleValuesInput): Promise<{
 
       // Get sample values for each column
       for (const columnName of columns) {
+        // SECURITY: Validate identifier to prevent SQL injection
+        // Column names come from user_tab_columns query, but validate anyway
+        if (!validateOracleIdentifier(columnName)) {
+          logger.warn('Invalid column name detected', {
+            tableName: tableNameUpper,
+            columnName,
+          });
+          sampleValues.push({
+            columnName,
+            sampleValues: ['Error: Invalid column name'],
+          });
+          continue;
+        }
+
+        // Validate table name as well
+        if (!validateOracleIdentifier(tableNameUpper)) {
+          throw new Error('Invalid table name');
+        }
+
         // Get sample values (SAFETY: strict row limit)
+        // Note: Using string interpolation for identifiers is safe here because:
+        // 1. tableNameUpper is validated above
+        // 2. columnName is validated above
+        // 3. Both come from Oracle's system catalog (user_tab_columns)
         const sampleQuery = `
           SELECT ${columnName}
           FROM ${tableNameUpper}

@@ -68,6 +68,12 @@ export async function listTables(input: ListTablesInput = { includeRowCounts: fa
       
       if (validated.includeRowCounts) {
         // Get row counts from statistics (approximate but fast)
+        // NOTE: Row counts from user_tab_statistics are APPROXIMATE and depend on
+        // Oracle database statistics being up-to-date. They may be stale if:
+        // - Statistics haven't been gathered recently (DBMS_STATS.GATHER_TABLE_STATS)
+        // - The table has been heavily modified since last stats collection
+        // - Statistics are locked or not collected for certain tables
+        // For exact counts, use COUNT(*) queries, but this is much slower.
         query = `
           SELECT 
             t.table_name,
