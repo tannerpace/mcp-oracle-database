@@ -72,30 +72,34 @@ npm init -y
 ✅ Logging included
 ✅ Graceful shutdown handlers
 
-## Example 2: Adding a Tool to This Project
+## Example 2: Adding a Tool to an Existing Project
 
-To test adding a new tool to the existing Oracle MCP Server:
+To test adding a new tool to an existing MCP server:
 
 ### Step 1: Use the Quick Start Path A
 
 From `QUICK-START-GENERATOR.md`, copy the "Path A: Add Tool to Existing MCP Server" prompt and customize it:
 
 ```
-Add a new MCP tool to this project following the Oracle MCP Server pattern.
+Add a new MCP tool to this project following MCP best practices.
 
 Tool: get_table_stats
 Purpose: Get statistics about a table (row count, size, last modified)
 Inputs: 
   - tableName: string (required)
   - includeIndexes: boolean (optional, default false)
-Data source: Oracle database (existing connection)
+Data source: Database (existing connection)
 
 Generate:
 1. src/tools/getTableStats.ts with Zod schema and implementation
 2. Tool registration code for src/server.ts
 3. Type definitions if needed
 
-Follow patterns from existing tools in src/tools/
+Follow these patterns:
+- ES2022 modules with .js extensions in imports
+- Zod schemas for validation
+- MCP-compliant response format
+- Comprehensive error handling
 ```
 
 ### Step 2: Expected Output
@@ -173,8 +177,10 @@ TOOLS:
 
 REQUIREMENTS:
 - Working directory: /Users/yourname/projects/mcp-github
-- Based on Oracle MCP Server architecture
+- TypeScript with ES2022 modules (.js imports)
 - Use @modelcontextprotocol/sdk v1.20.2+
+- Zod for validation
+- MCP-compliant response format
 ...
 ```
 

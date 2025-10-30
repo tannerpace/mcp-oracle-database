@@ -1,6 +1,6 @@
 # MCP Project Generator Prompt
 
-This prompt file helps you create new MCP (Model Context Protocol) tools or standalone MCP projects based on the proven architecture of this Oracle MCP Server.
+This prompt file helps you create new MCP (Model Context Protocol) tools or standalone MCP projects using a proven architecture pattern.
 
 ## 🎯 Purpose
 
@@ -8,6 +8,16 @@ Use this prompt with AI assistants (like GitHub Copilot, Claude, or ChatGPT) to 
 - **New MCP tools** within an existing MCP server
 - **Standalone MCP projects** with complete infrastructure
 - **Custom integrations** for different data sources or APIs
+
+## 📐 Architecture Overview
+
+This generator uses a proven MCP server architecture with:
+- **ES2022 Modules**: TypeScript compiled to ES modules (requires `.js` extensions in imports)
+- **Zod Validation**: Runtime type checking for all inputs and configuration
+- **Stdio Transport**: Communication via standard input/output (JSON-RPC)
+- **Modular Structure**: Clean separation of concerns (server, tools, data layer, utilities)
+- **Type Safety**: Strict TypeScript with explicit type annotations
+- **Error Handling**: Comprehensive try/catch blocks and MCP-compliant error responses
 
 ## 📋 Prerequisites
 
@@ -24,7 +34,7 @@ Before using this prompt, ensure you have:
 **Copy and paste this to your AI assistant:**
 
 ```
-I want to create a new MCP tool based on the Oracle MCP Server architecture.
+I want to create a new MCP tool following MCP best practices.
 
 PROJECT CONTEXT:
 - I'm working in: [specify directory path, e.g., /Users/yourname/projects/my-mcp]
@@ -58,7 +68,7 @@ Please generate:
 **Copy and paste this to your AI assistant:**
 
 ```
-I want to create a standalone MCP server project based on the Oracle MCP Server architecture.
+I want to create a standalone MCP server project using TypeScript and ES2022 modules.
 
 PROJECT SETUP (macOS/VS Code):
 - Create new project in: [specify path, e.g., ~/projects/my-new-mcp]
@@ -71,7 +81,7 @@ PROJECT REQUIREMENTS:
 - Planned tools: [list 2-3 tools this server will provide]
 
 ARCHITECTURE TO IMPLEMENT:
-Based on the Oracle MCP Server pattern, create a complete project with:
+Create a complete MCP server project with the following patterns:
 
 1. **Project Structure:**
    ```
@@ -608,9 +618,9 @@ import { promises as fs } from 'fs';
 ## 📖 Additional Resources
 
 - **MCP SDK Documentation**: https://github.com/modelcontextprotocol/sdk
-- **Oracle MCP Server**: This repository - reference implementation
 - **Zod Documentation**: https://zod.dev
 - **TypeScript Handbook**: https://www.typescriptlang.org/docs
+- **ES Modules Guide**: https://nodejs.org/api/esm.html
 
 ## 💡 Example Use Cases
 

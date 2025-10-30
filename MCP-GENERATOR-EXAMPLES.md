@@ -28,14 +28,19 @@ TOOLS TO CREATE:
 3. explain_query - Get PostgreSQL EXPLAIN plan for optimization
 
 ARCHITECTURE:
-Follow Oracle MCP Server pattern with:
+Follow MCP best practices with:
 - src/database/postgresConnection.ts - Connection pool management
 - src/database/queryExecutor.ts - Query execution with safety limits
 - src/tools/ - Three tools above
+- src/server.ts - Main MCP server with stdio transport
+- src/client.ts - Test client
+- src/config.ts - Zod-validated environment config
 - Environment config for: PG_HOST, PG_PORT, PG_DATABASE, PG_USER, PG_PASSWORD
 - Connection pooling (min 2, max 10)
 - Query timeout: 30 seconds
 - Max rows: 1000
+- TypeScript ES2022 modules (.js imports)
+- MCP-compliant response format
 
 DEPENDENCIES:
 - @modelcontextprotocol/sdk@^1.20.2
@@ -75,13 +80,18 @@ TOOLS TO CREATE:
 4. get_pull_request - Get PR details including reviews and status
 
 ARCHITECTURE:
-Follow Oracle MCP Server pattern with:
+Follow MCP best practices with:
+- src/server.ts - Main MCP server with stdio transport
+- src/client.ts - Test client
+- src/config.ts - Zod-validated environment config
 - src/github/client.ts - Octokit client singleton
 - src/github/types.ts - GitHub API types
 - src/tools/ - Four tools above
 - Environment config for: GITHUB_TOKEN, GITHUB_API_URL
 - Rate limiting: 60 requests/minute
 - Request timeout: 10 seconds
+- TypeScript ES2022 modules (.js imports)
+- MCP-compliant response format
 
 DEPENDENCIES:
 - @modelcontextprotocol/sdk@^1.20.2
@@ -120,7 +130,10 @@ TOOLS TO CREATE:
 4. search_content - Grep-like search within files
 
 ARCHITECTURE:
-Follow Oracle MCP Server pattern with:
+Follow MCP best practices with:
+- src/server.ts - Main MCP server with stdio transport
+- src/client.ts - Test client
+- src/config.ts - Zod-validated environment config
 - src/filesystem/operations.ts - Core file operations
 - src/filesystem/types.ts - File system types
 - src/tools/ - Four tools above
@@ -128,6 +141,8 @@ Follow Oracle MCP Server pattern with:
 - Security: Only access allowed directories
 - Max file size: 10MB
 - Search depth limit: 5 levels
+- TypeScript ES2022 modules (.js imports)
+- MCP-compliant response format
 
 DEPENDENCIES:
 - @modelcontextprotocol/sdk@^1.20.2
@@ -166,13 +181,18 @@ TOOLS TO CREATE:
 4. get_user_info - Get user profile information
 
 ARCHITECTURE:
-Follow Oracle MCP Server pattern with:
+Follow MCP best practices with:
+- src/server.ts - Main MCP server with stdio transport
+- src/client.ts - Test client
+- src/config.ts - Zod-validated environment config
 - src/slack/client.ts - WebClient singleton
 - src/slack/types.ts - Slack API types
 - src/tools/ - Four tools above
 - Environment config for: SLACK_TOKEN, SLACK_WORKSPACE_ID
 - Rate limiting: 1 request per second
 - Message length limit: 4000 characters
+- TypeScript ES2022 modules (.js imports)
+- MCP-compliant response format
 
 DEPENDENCIES:
 - @modelcontextprotocol/sdk@^1.20.2
@@ -211,7 +231,10 @@ TOOLS TO CREATE:
 4. list_collections - List all collections in database
 
 ARCHITECTURE:
-Follow Oracle MCP Server pattern with:
+Follow MCP best practices with:
+- src/server.ts - Main MCP server with stdio transport
+- src/client.ts - Test client
+- src/config.ts - Zod-validated environment config
 - src/database/mongoConnection.ts - MongoClient connection manager
 - src/database/queryExecutor.ts - Query execution with limits
 - src/tools/ - Four tools above
@@ -219,6 +242,8 @@ Follow Oracle MCP Server pattern with:
 - Connection pooling
 - Query timeout: 30 seconds
 - Max documents: 1000
+- TypeScript ES2022 modules (.js imports)
+- MCP-compliant response format
 
 DEPENDENCIES:
 - @modelcontextprotocol/sdk@^1.20.2
@@ -257,7 +282,10 @@ TOOLS TO CREATE:
 4. http_delete - Make DELETE request
 
 ARCHITECTURE:
-Follow Oracle MCP Server pattern with:
+Follow MCP best practices with:
+- src/server.ts - Main MCP server with stdio transport
+- src/client.ts - Test client
+- src/config.ts - Zod-validated environment config
 - src/api/client.ts - Axios instance with interceptors
 - src/api/types.ts - HTTP types
 - src/tools/ - Four tools above
@@ -265,6 +293,8 @@ Follow Oracle MCP Server pattern with:
 - Request timeout: 30 seconds
 - Response size limit: 5MB
 - Support for JSON and form data
+- TypeScript ES2022 modules (.js imports)
+- MCP-compliant response format
 
 DEPENDENCIES:
 - @modelcontextprotocol/sdk@^1.20.2
@@ -303,13 +333,18 @@ TOOLS TO CREATE:
 4. analyze_performance - Get performance metrics for time range
 
 ARCHITECTURE:
-Follow Oracle MCP Server pattern with:
+Follow MCP best practices with:
+- src/server.ts - Main MCP server with stdio transport
+- src/client.ts - Test client
+- src/config.ts - Zod-validated environment config
 - src/analytics/client.ts - Metrics database client
 - src/analytics/logParser.ts - Log parsing utilities
 - src/tools/ - Four tools above
 - Environment config for: METRICS_URL, LOGS_DIR, RETENTION_DAYS
 - Query timeout: 60 seconds
 - Max metrics points: 10000
+- TypeScript ES2022 modules (.js imports)
+- MCP-compliant response format
 
 DEPENDENCIES:
 - @modelcontextprotocol/sdk@^1.20.2
@@ -345,11 +380,16 @@ TOOLS TO CREATE:
 3. [tool3_name] - [description]
 
 ARCHITECTURE:
-Follow Oracle MCP Server pattern with:
+Follow MCP best practices with:
+- src/server.ts - Main MCP server with stdio transport
+- src/client.ts - Test client
+- src/config.ts - Zod-validated environment config
 - src/[datasource]/[connection-file].ts - [Description]
 - src/[datasource]/types.ts - Type definitions
 - src/tools/ - Tool implementations
 - Environment config for: [LIST_ENV_VARS]
+- TypeScript ES2022 modules (.js imports)
+- MCP-compliant response format
 - [Any special considerations: timeouts, limits, pooling]
 
 DEPENDENCIES:
@@ -377,7 +417,7 @@ Generate complete project structure and provide initialization commands for macO
 
 - **Detailed Guide:** See `MCP-PROJECT-GENERATOR-PROMPT.md`
 - **Quick Start:** See `QUICK-START-GENERATOR.md`
-- **Architecture Reference:** See Oracle MCP Server source code
+- **Architecture Reference:** MCP SDK docs at https://github.com/modelcontextprotocol/sdk
 
 ---
 

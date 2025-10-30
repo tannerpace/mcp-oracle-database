@@ -25,7 +25,7 @@ cd /Users/yourname/projects/my-existing-mcp
 2. **Copy this prompt to Copilot/ChatGPT/Claude:**
 
 ```
-Add a new MCP tool to this project following the Oracle MCP Server pattern.
+Add a new MCP tool to this project following MCP best practices.
 
 Tool: [name, e.g., "search_logs"]
 Purpose: [what it does, e.g., "Search application logs by keyword and date range"]
@@ -37,7 +37,11 @@ Generate:
 2. Tool registration code for src/server.ts
 3. Type definitions if needed
 
-Follow patterns from existing tools in src/tools/
+Follow these patterns:
+- ES2022 modules with .js extensions in imports
+- Zod schemas for validation
+- MCP-compliant response format ({ content: [...] })
+- Comprehensive error handling
 ```
 
 3. **Build and test:**
@@ -60,7 +64,7 @@ cd my-new-mcp
 2. **Copy this complete prompt to your AI assistant:**
 
 ```
-Create a standalone MCP server project for macOS/VS Code.
+Create a standalone MCP server project for macOS/VS Code using TypeScript and ES2022 modules.
 
 PROJECT: [name, e.g., "mcp-github-server"]
 PURPOSE: [what it does]
@@ -69,12 +73,36 @@ TOOLS: [list 2-3 tools to create]
 
 REQUIREMENTS:
 - Working directory: $(pwd)
-- Based on Oracle MCP Server architecture
-- Use @modelcontextprotocol/sdk v1.20.2+
 - TypeScript with ES2022 modules (.js imports required)
+- Use @modelcontextprotocol/sdk v1.20.2+
 - Zod for validation
 - Environment config via .env
 - Includes test client
+
+ARCHITECTURE PATTERNS:
+1. **Project Structure:**
+   - src/server.ts (main MCP server with stdio transport)
+   - src/client.ts (test client)
+   - src/config.ts (Zod-validated environment config)
+   - src/tools/*.ts (MCP tool implementations)
+   - src/utils/logger.ts (logging utility)
+   - src/[datasource]/ (connection and operation logic)
+
+2. **Key Patterns:**
+   - ES2022 modules: All imports use .js extensions
+   - Zod schemas: Validate all inputs and config
+   - MCP-compliant: Tools return { content: [...] } format
+   - Stdio transport: Communication via stdin/stdout
+   - Error handling: Try/catch in all async functions
+   - Graceful shutdown: SIGINT/SIGTERM handlers
+
+3. **Dependencies:**
+   - @modelcontextprotocol/sdk (^1.20.2)
+   - zod (^3.25.76)
+   - dotenv (^16.3.1)
+   - typescript (^5.3.3)
+   - @types/node (^20.19.23)
+   - [add data source specific libraries]
 
 Generate complete project:
 1. package.json with correct scripts

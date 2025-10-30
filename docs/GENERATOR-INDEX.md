@@ -44,7 +44,7 @@ Complete guide to using the MCP Project Generator to create new tools and server
 
 ## 🎯 Use Case Guide
 
-### "I want to add a tool to this Oracle MCP Server"
+### "I want to add a tool to an existing MCP Server"
 → Start with **[Quick Start Generator - Path A](../QUICK-START-GENERATOR.md#path-a-add-tool-to-existing-mcp-server)**
 
 ### "I want to create a PostgreSQL MCP Server"
@@ -171,13 +171,14 @@ See **[Generator Usage Examples](./GENERATOR-USAGE-EXAMPLES.md)** for detailed v
 - [MCP Integration Guide](./MCP-INTEGRATION.md) - Protocol details
 - [VS Code Integration Guide](./VSCODE-INTEGRATION.md) - Copilot setup
 
-### This Project
-- [Quick Start Guide](./QUICK-START-VSCODE.md) - Oracle MCP setup
-- [README](../README.md) - Main project documentation
+### This Repository
+- [Quick Start Guide](./QUICK-START-VSCODE.md) - Example MCP server setup
+- [README](../README.md) - Project documentation
 
 ### External
 - [MCP SDK](https://github.com/modelcontextprotocol/sdk) - Official SDK
 - [Zod](https://zod.dev) - Schema validation
+- [ES Modules](https://nodejs.org/api/esm.html) - Node.js documentation
 
 ---
 
@@ -252,8 +253,8 @@ Here's how a typical user would use these generators:
 If you have questions:
 1. Review the **Generator Usage Examples** for validation tips
 2. Check **Common Pitfalls** in the main prompt guide
-3. Refer to this Oracle MCP Server as a reference implementation
-4. Open an issue on GitHub
+3. Refer to the MCP SDK documentation
+4. Check this repository's source code as an example implementation
 
 ---
 
