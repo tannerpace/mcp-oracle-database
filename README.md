@@ -78,6 +78,19 @@ docker start oracle-xe
 
 See [Quick Start Guide](./docs/QUICK-START-VSCODE.md) for detailed setup.
 
+## 🏗️ Build Your Own MCP Server
+
+Want to create your own MCP server for a different data source? This repository serves as a **reference architecture** for building MCP servers!
+
+**📝 [MCP Project Generator](./MCP-PROJECT-GENERATOR-PROMPT.md)** - Use our comprehensive prompt templates to generate:
+- New MCP tools for this server
+- Standalone MCP servers for PostgreSQL, MongoDB, GitHub, Slack, REST APIs, and more
+- Custom integrations for your specific needs
+
+**⚡ [Quick Start Generator](./QUICK-START-GENERATOR.md)** - 5-minute copy-paste guide for macOS/VS Code
+
+**🎯 [Ready-to-Use Examples](./MCP-GENERATOR-EXAMPLES.md)** - Pre-built prompts for common use cases
+
 ## Features
 
 - 🔒 **Read-only access** - Uses a dedicated read-only database user for security
@@ -446,6 +459,11 @@ For most use cases, Thin Mode is simpler and works great!
 - [Claude Desktop Integration Guide](./docs/CLAUDE-INTEGRATION.md) - Set up with Claude Desktop
 - [Quick Start Guide](./docs/QUICK-START-VSCODE.md) - Get started with VS Code in 3 steps ⚡
 - [VS Code Agent Mode Plan](./docs/VSCODE-AGENT-MODE-PLAN.md) - Implementation details and troubleshooting
+
+🏗️ **MCP Project Generator:**
+- [**MCP Project Generator Prompt**](./MCP-PROJECT-GENERATOR-PROMPT.md) - 📝 Comprehensive guide to generate new MCP tools and projects
+- [**Quick Start Generator**](./QUICK-START-GENERATOR.md) - ⚡ 5-minute guide with copy-paste prompts
+- [**Generator Examples**](./MCP-GENERATOR-EXAMPLES.md) - 🎯 Ready-to-use prompts for PostgreSQL, GitHub, MongoDB, Slack, and more
 
 📊 **Test Results:**
 - [Test Results](./test-results.md) - Comprehensive test results with example queries
