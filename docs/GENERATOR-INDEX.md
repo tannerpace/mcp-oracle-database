@@ -48,10 +48,10 @@ Complete guide to using the MCP Project Generator to create new tools and server
 → Start with **[Quick Start Generator - Path A](../QUICK-START-GENERATOR.md#path-a-add-tool-to-existing-mcp-server)**
 
 ### "I want to create a PostgreSQL MCP Server"
-→ Use **[PostgreSQL Example](../MCP-GENERATOR-EXAMPLES.md#%EF%B8%8F-example-1-postgresql-mcp-server)**
+→ Use **[PostgreSQL Example](../MCP-GENERATOR-EXAMPLES.md#example-1-postgresql-mcp-server)**
 
 ### "I want to create a GitHub integration"
-→ Use **[GitHub Example](../MCP-GENERATOR-EXAMPLES.md#-example-2-github-mcp-server)**
+→ Use **[GitHub Example](../MCP-GENERATOR-EXAMPLES.md#example-2-github-mcp-server)**
 
 ### "I want to create something totally custom"
 → Start with **[Quick Start Generator - Path B](../QUICK-START-GENERATOR.md#path-b-create-new-standalone-mcp-server)** and customize
