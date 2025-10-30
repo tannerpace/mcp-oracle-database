@@ -461,9 +461,11 @@ For most use cases, Thin Mode is simpler and works great!
 - [VS Code Agent Mode Plan](./docs/VSCODE-AGENT-MODE-PLAN.md) - Implementation details and troubleshooting
 
 🏗️ **MCP Project Generator:**
-- [**MCP Project Generator Prompt**](./MCP-PROJECT-GENERATOR-PROMPT.md) - 📝 Comprehensive guide to generate new MCP tools and projects
-- [**Quick Start Generator**](./QUICK-START-GENERATOR.md) - ⚡ 5-minute guide with copy-paste prompts
+- [**📚 Generator Documentation Index**](./docs/GENERATOR-INDEX.md) - Start here! Complete navigation guide
+- [**Quick Start Generator**](./QUICK-START-GENERATOR.md) - ⚡ 5-minute guide with copy-paste prompts  
 - [**Generator Examples**](./MCP-GENERATOR-EXAMPLES.md) - 🎯 Ready-to-use prompts for PostgreSQL, GitHub, MongoDB, Slack, and more
+- [**MCP Project Generator Prompt**](./MCP-PROJECT-GENERATOR-PROMPT.md) - 📝 Comprehensive guide to generate new MCP tools and projects
+- [**Generator Usage Examples**](./docs/GENERATOR-USAGE-EXAMPLES.md) - 🧪 Validation and testing guide
 
 📊 **Test Results:**
 - [Test Results](./test-results.md) - Comprehensive test results with example queries
