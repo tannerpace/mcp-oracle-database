@@ -2,6 +2,17 @@
 
 This is a condensed, copy-paste-ready guide for quickly generating new MCP projects on macOS with VS Code.
 
+## 📚 Important: Official Documentation
+
+**Before using these prompts, review the latest official docs:**
+- MCP Specification: https://spec.modelcontextprotocol.io/
+- MCP TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
+- VS Code MCP Docs: https://code.visualstudio.com/docs/copilot/copilot-extensibility-overview
+
+These prompts provide quick templates but always defer to official documentation for current specifications.
+
+---
+
 ## 🚀 5-Minute Setup
 
 ### Prerequisites Check
@@ -26,6 +37,10 @@ cd /Users/yourname/projects/my-existing-mcp
 
 ```
 Add a new MCP tool to this project following MCP best practices.
+
+BEFORE STARTING: Fetch latest docs from:
+- https://spec.modelcontextprotocol.io/
+- https://github.com/modelcontextprotocol/typescript-sdk
 
 Tool: [name, e.g., "search_logs"]
 Purpose: [what it does, e.g., "Search application logs by keyword and date range"]
@@ -65,6 +80,12 @@ cd my-new-mcp
 
 ```
 Create a standalone MCP server project for macOS/VS Code using TypeScript and ES2022 modules.
+
+BEFORE STARTING: Fetch and review latest documentation:
+- MCP Specification: https://spec.modelcontextprotocol.io/
+- MCP TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
+- Anthropic MCP Guide: https://docs.anthropic.com/en/docs/build-with-claude/model-context-protocol
+- VS Code MCP Docs: https://code.visualstudio.com/docs/copilot/copilot-extensibility-overview
 
 PROJECT: [name, e.g., "mcp-github-server"]
 PURPOSE: [what it does]

@@ -2,6 +2,17 @@
 
 This document demonstrates how to use the MCP generator prompt files to create new MCP tools and projects.
 
+## ⚠️ Important Note About Documentation
+
+**These examples demonstrate prompt usage, but always instruct the AI to fetch official MCP documentation first:**
+- MCP Specification: https://spec.modelcontextprotocol.io/
+- MCP TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
+- MCP Documentation: https://modelcontextprotocol.io/
+
+The official docs may have updates that supersede patterns shown in these examples.
+
+---
+
 ## Example 1: Testing the PostgreSQL Prompt
 
 To verify the PostgreSQL example from `MCP-GENERATOR-EXAMPLES.md` works correctly, follow these steps:

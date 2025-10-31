@@ -2,6 +2,19 @@
 
 Complete guide to using the MCP Project Generator to create new tools and servers.
 
+## ⚠️ Important: Always Check Official Documentation
+
+**These generator prompts are templates based on MCP best practices, but the official documentation is the source of truth:**
+
+- **MCP Specification:** https://spec.modelcontextprotocol.io/
+- **MCP Documentation:** https://modelcontextprotocol.io/
+- **MCP TypeScript SDK:** https://github.com/modelcontextprotocol/typescript-sdk
+- **Anthropic MCP Guide:** https://docs.anthropic.com/en/docs/build-with-claude/model-context-protocol
+
+Always instruct your AI assistant to fetch the latest documentation before generating code.
+
+---
+
 ## 📚 Quick Navigation
 
 ### For New Users (Start Here!)
@@ -175,10 +188,14 @@ See **[Generator Usage Examples](./GENERATOR-USAGE-EXAMPLES.md)** for detailed v
 - [Quick Start Guide](./QUICK-START-VSCODE.md) - Example MCP server setup
 - [README](../README.md) - Project documentation
 
-### External
-- [MCP SDK](https://github.com/modelcontextprotocol/sdk) - Official SDK
-- [Zod](https://zod.dev) - Schema validation
-- [ES Modules](https://nodejs.org/api/esm.html) - Node.js documentation
+### External - Official MCP Documentation
+- **[MCP Specification](https://spec.modelcontextprotocol.io/)** - Protocol specification
+- **[MCP Documentation](https://modelcontextprotocol.io/)** - Official docs
+- **[MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)** - Official SDK
+- **[Anthropic MCP Guide](https://docs.anthropic.com/en/docs/build-with-claude/model-context-protocol)** - Anthropic's guide
+- **[MCP Servers Examples](https://github.com/modelcontextprotocol/servers)** - Official examples
+- **[Zod](https://zod.dev)** - Schema validation
+- **[ES Modules](https://nodejs.org/api/esm.html)** - Node.js documentation
 
 ---
 

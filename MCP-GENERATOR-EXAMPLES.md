@@ -2,6 +2,15 @@
 
 Ready-to-use prompts for common MCP server scenarios. Just copy, customize, and paste to your AI assistant.
 
+## 📚 Important: Always Fetch Latest Documentation
+
+**Before using these examples, instruct your AI assistant to fetch:**
+- MCP Specification: https://spec.modelcontextprotocol.io/
+- MCP TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
+- MCP Servers Examples: https://github.com/modelcontextprotocol/servers
+
+These examples provide quick templates but the official documentation is the source of truth.
+
 ---
 
 ## 🗄️ Example 1: PostgreSQL MCP Server
@@ -12,6 +21,10 @@ Ready-to-use prompts for common MCP server scenarios. Just copy, customize, and 
 
 ```
 Create a standalone MCP server for PostgreSQL databases on macOS.
+
+BEFORE STARTING: Fetch and review latest MCP documentation:
+- https://spec.modelcontextprotocol.io/
+- https://github.com/modelcontextprotocol/typescript-sdk
 
 PROJECT SETUP:
 - Directory: ~/projects/mcp-postgresql
@@ -64,6 +77,10 @@ Generate complete project structure and provide initialization commands for macO
 ```
 Create a standalone MCP server for GitHub API integration on macOS/VS Code.
 
+BEFORE STARTING: Fetch and review latest MCP documentation:
+- https://spec.modelcontextprotocol.io/
+- https://github.com/modelcontextprotocol/typescript-sdk
+
 PROJECT SETUP:
 - Directory: ~/projects/mcp-github
 - Please instruct me to create this directory if it doesn't exist
@@ -113,6 +130,10 @@ Generate complete project structure and provide initialization commands for macO
 
 ```
 Create a standalone MCP server for file system operations on macOS.
+
+BEFORE STARTING: Fetch and review latest MCP documentation:
+- https://spec.modelcontextprotocol.io/
+- https://github.com/modelcontextprotocol/typescript-sdk
 
 PROJECT SETUP:
 - Directory: ~/projects/mcp-filesystem
@@ -165,6 +186,10 @@ Generate complete project structure with security considerations and provide ini
 ```
 Create a standalone MCP server for Slack integration on macOS/VS Code.
 
+BEFORE STARTING: Fetch and review latest MCP documentation:
+- https://spec.modelcontextprotocol.io/
+- https://github.com/modelcontextprotocol/typescript-sdk
+
 PROJECT SETUP:
 - Directory: ~/projects/mcp-slack
 - Please instruct me to create this directory if it doesn't exist
@@ -214,6 +239,10 @@ Generate complete project structure and provide initialization commands for macO
 
 ```
 Create a standalone MCP server for MongoDB databases on macOS.
+
+BEFORE STARTING: Fetch and review latest MCP documentation:
+- https://spec.modelcontextprotocol.io/
+- https://github.com/modelcontextprotocol/typescript-sdk
 
 PROJECT SETUP:
 - Directory: ~/projects/mcp-mongodb
@@ -266,6 +295,10 @@ Generate complete project structure and provide initialization commands for macO
 ```
 Create a standalone MCP server for generic REST API integration on macOS.
 
+BEFORE STARTING: Fetch and review latest MCP documentation:
+- https://spec.modelcontextprotocol.io/
+- https://github.com/modelcontextprotocol/typescript-sdk
+
 PROJECT SETUP:
 - Directory: ~/projects/mcp-rest-api
 - Please instruct me to create this directory if it doesn't exist
@@ -317,6 +350,10 @@ Generate complete project structure and provide initialization commands for macO
 ```
 Create a standalone MCP server for application analytics on macOS.
 
+BEFORE STARTING: Fetch and review latest MCP documentation:
+- https://spec.modelcontextprotocol.io/
+- https://github.com/modelcontextprotocol/typescript-sdk
+
 PROJECT SETUP:
 - Directory: ~/projects/mcp-analytics
 - Please instruct me to create this directory if it doesn't exist
@@ -364,6 +401,10 @@ Use this template for your own custom MCP server:
 
 ```
 Create a standalone MCP server for [YOUR USE CASE] on macOS/VS Code.
+
+BEFORE STARTING: Fetch and review latest MCP documentation:
+- https://spec.modelcontextprotocol.io/
+- https://github.com/modelcontextprotocol/typescript-sdk
 
 PROJECT SETUP:
 - Directory: ~/projects/mcp-[name]
@@ -417,7 +458,9 @@ Generate complete project structure and provide initialization commands for macO
 
 - **Detailed Guide:** See `MCP-PROJECT-GENERATOR-PROMPT.md`
 - **Quick Start:** See `QUICK-START-GENERATOR.md`
-- **Architecture Reference:** MCP SDK docs at https://github.com/modelcontextprotocol/sdk
+- **Official MCP Docs:** https://modelcontextprotocol.io/
+- **MCP Specification:** https://spec.modelcontextprotocol.io/
+- **MCP TypeScript SDK:** https://github.com/modelcontextprotocol/typescript-sdk
 
 ---
 

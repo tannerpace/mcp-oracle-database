@@ -27,6 +27,31 @@ Before using this prompt, ensure you have:
 - **npm** or **pnpm** package manager
 - **macOS, Linux, or Windows** with a terminal
 
+## 📚 Official Documentation References
+
+**IMPORTANT**: Before generating code, fetch and review the latest official documentation:
+
+### Model Context Protocol (MCP) Documentation
+- **MCP Specification**: https://spec.modelcontextprotocol.io/
+- **MCP SDK (TypeScript/JavaScript)**: https://github.com/modelcontextprotocol/typescript-sdk
+- **MCP Documentation**: https://modelcontextprotocol.io/
+- **Anthropic MCP Guide**: https://docs.anthropic.com/en/docs/build-with-claude/model-context-protocol
+
+### VS Code MCP Integration
+- **VS Code MCP Extension Docs**: https://code.visualstudio.com/docs/copilot/copilot-extensibility-overview
+- **GitHub Copilot MCP Support**: https://docs.github.com/en/copilot/building-copilot-extensions/building-a-copilot-agent-for-your-copilot-extension
+
+### TypeScript & Node.js
+- **TypeScript Handbook**: https://www.typescriptlang.org/docs
+- **ES Modules in Node.js**: https://nodejs.org/api/esm.html
+- **Zod Validation**: https://zod.dev
+
+**Note**: These prompts provide architectural patterns, but always refer to the latest official documentation for:
+- Current MCP protocol specifications
+- Latest SDK versions and APIs
+- VS Code integration best practices
+- Breaking changes or updates
+
 ## 🚀 How to Use This Prompt
 
 ### Option 1: Generate a New MCP Tool (Add to Existing Project)
@@ -35,6 +60,12 @@ Before using this prompt, ensure you have:
 
 ```
 I want to create a new MCP tool following MCP best practices.
+
+BEFORE STARTING:
+Please fetch and review the latest documentation:
+- MCP Specification: https://spec.modelcontextprotocol.io/
+- MCP TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
+- MCP Documentation: https://modelcontextprotocol.io/
 
 PROJECT CONTEXT:
 - I'm working in: [specify directory path, e.g., /Users/yourname/projects/my-mcp]
@@ -69,6 +100,14 @@ Please generate:
 
 ```
 I want to create a standalone MCP server project using TypeScript and ES2022 modules.
+
+BEFORE STARTING:
+Please fetch and review the latest documentation:
+- MCP Specification: https://spec.modelcontextprotocol.io/
+- MCP TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
+- MCP Documentation: https://modelcontextprotocol.io/
+- Anthropic MCP Guide: https://docs.anthropic.com/en/docs/build-with-claude/model-context-protocol
+- VS Code MCP Docs: https://code.visualstudio.com/docs/copilot/copilot-extensibility-overview
 
 PROJECT SETUP (macOS/VS Code):
 - Create new project in: [specify path, e.g., ~/projects/my-new-mcp]
@@ -617,10 +656,28 @@ import { promises as fs } from 'fs';
 
 ## 📖 Additional Resources
 
-- **MCP SDK Documentation**: https://github.com/modelcontextprotocol/sdk
-- **Zod Documentation**: https://zod.dev
+**Always check the latest official documentation before implementation:**
+
+### Core MCP Resources
+- **MCP Specification**: https://spec.modelcontextprotocol.io/
+- **MCP Documentation**: https://modelcontextprotocol.io/
+- **MCP TypeScript SDK**: https://github.com/modelcontextprotocol/typescript-sdk
+- **Anthropic MCP Guide**: https://docs.anthropic.com/en/docs/build-with-claude/model-context-protocol
+
+### VS Code & GitHub Copilot Integration
+- **VS Code MCP Extension**: https://code.visualstudio.com/docs/copilot/copilot-extensibility-overview
+- **GitHub Copilot Extensions**: https://docs.github.com/en/copilot/building-copilot-extensions
+
+### TypeScript & Validation
 - **TypeScript Handbook**: https://www.typescriptlang.org/docs
-- **ES Modules Guide**: https://nodejs.org/api/esm.html
+- **ES Modules in Node.js**: https://nodejs.org/api/esm.html
+- **Zod Documentation**: https://zod.dev
+
+### Community & Examples
+- **MCP Servers Repository**: https://github.com/modelcontextprotocol/servers
+- **MCP Examples**: Check the official MCP GitHub organization for example implementations
+
+**Important**: These documentation links provide the authoritative and up-to-date information. The architectural patterns in this prompt are based on these sources but may become outdated as the MCP specification evolves.
 
 ## 💡 Example Use Cases
 
