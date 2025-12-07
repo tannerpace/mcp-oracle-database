@@ -478,9 +478,11 @@ For most use cases, Thin Mode is simpler and works great!
 - [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) - Project-wide Copilot instructions
 - [`.github/instructions/`](./.github/instructions/) - Language-specific coding guidelines
 
-## License
 
-ISC
+Oracle is a registered trademark of Oracle Corporation.
+This project is not affiliated with, endorsed by, or sponsored by Oracle Corporation.
+
+
 
 ## Contributing
 
