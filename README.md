@@ -5,6 +5,10 @@ A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs
 [![npm version](https://badge.fury.io/js/mcp-oracle-database.svg)](https://www.npmjs.com/package/mcp-oracle-database)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
+<a href="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database/badge" alt="Oracle Database Server MCP server" />
+</a>
+
 ## 📦 Installation
 
 ### From npm (Recommended)
@@ -481,4 +485,3 @@ ISC
 ## Contributing
 
 Contributions welcome! Please open an issue or pull request.
-
