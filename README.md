@@ -4,6 +4,8 @@ A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs
 
 [![npm version](https://badge.fury.io/js/mcp-oracle-database.svg)](https://www.npmjs.com/package/mcp-oracle-database)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tannerpace/mcp-oracle-database/badge)](https://securityscorecards.dev/viewer/?uri=github.com/tannerpace/mcp-oracle-database)
+[![OpenSSF Best Practices](https://www.bestpractices.coreinfrastructure.org/projects/9999/badge)](https://www.bestpractices.coreinfrastructure.org/projects/9999)
 
 <a href="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database/badge" alt="Oracle Database Server MCP server" />
@@ -384,13 +386,37 @@ All queries and events are logged in JSON format. Logs go to stdout/stderr:
 
 Set `LOG_LEVEL=debug` in `.env` for more verbose logging.
 
-## Security Considerations
+## Security
+
+### Security Considerations
 
 1. **Read-Only User** - Database user has only SELECT privileges
 2. **Local Client** - Designed for trusted local use only
 3. **No Injection Protection** - Trust the LLM to generate valid queries
 4. **Query Limits** - Row count and timeout limits prevent resource exhaustion
 5. **Audit Logging** - All queries logged for review
+
+### Security Best Practices
+
+We follow [OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/) for secure package development:
+
+- ✅ **Automated Dependency Updates** - Dependabot monitors for vulnerabilities
+- ✅ **Continuous Security Scanning** - OpenSSF Scorecard and npm audit in CI/CD
+- ✅ **Signed Releases** - npm provenance attestation for published packages
+- ✅ **Vulnerability Disclosure** - See [SECURITY.md](./SECURITY.md) for reporting
+- ✅ **Lockfile Security** - `package-lock.json` ensures reproducible builds with hash verification
+- ✅ **Least Privilege CI** - GitHub Actions run with minimal permissions
+- ✅ **Code Review** - All changes require review before merging
+
+### Reporting Security Vulnerabilities
+
+Please see [SECURITY.md](./SECURITY.md) for our security policy and how to report vulnerabilities.
+
+### Security Badges
+
+- **OpenSSF Scorecard**: Automated security assessment of our supply chain
+- **npm Audit**: Regular vulnerability scanning of dependencies
+- **Dependency Review**: Automatic review of new dependencies in PRs
 
 ## Troubleshooting
 
