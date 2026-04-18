@@ -68,7 +68,7 @@ Please fetch and review the latest documentation:
 - MCP Documentation: https://modelcontextprotocol.io/
 
 PROJECT CONTEXT:
-- I'm working in: [specify directory path, e.g., /Users/yourname/projects/my-mcp]
+- I'm working in: [specify directory path, e.g., /Users/yourname/projects/mcp-oracle-database]
 - The project already exists and follows the MCP server pattern
 - I want to add a new tool to src/tools/
 
@@ -124,7 +124,7 @@ Create a complete MCP server project with the following patterns:
 
 1. **Project Structure:**
    ```
-   my-mcp/
+   mcp-oracle-database/
    ├── src/
    │   ├── server.ts              # Main MCP server entry point
    │   ├── client.ts              # Test client for local validation
@@ -564,7 +564,7 @@ npm run build
     "myserver": {
       "type": "stdio",
       "command": "node",
-      "args": ["/Users/yourname/projects/my-mcp/dist/server.js"],
+      "args": ["/Users/yourname/projects/mcp-oracle-database/dist/server.js"],
       "env": {
         "LOG_LEVEL": "info"
       }

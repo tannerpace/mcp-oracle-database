@@ -293,7 +293,7 @@ LOG_LEVEL=info
 ENABLE_AUDIT_LOGGING=true
 
 # Server
-SERVER_NAME=my-mcp-server
+SERVER_NAME=mcp-oracle-database-server
 SERVER_VERSION=1.0.0
 ```
 

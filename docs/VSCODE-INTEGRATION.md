@@ -43,7 +43,7 @@ GitHub Copilot is adding native MCP support through "Agent Mode". This is the si
     "oracle-db": {
       "command": "node",
       "args": ["dist/server.js"],
-      "cwd": "/Users/yourname/path/to/my-mcp",
+      "cwd": "/Users/yourname/path/to/mcp-oracle-database",
       "env": {
         "ORACLE_CONNECTION_STRING": "localhost:1521/XEPDB1",
         "ORACLE_USER": "system",
@@ -100,7 +100,7 @@ Copilot: "There are 42 employees in Engineering"
   "oracle-db": {
     "command": "node",
     "args": ["dist/server.js"],
-    "cwd": "/Users/yourname/path/to/my-mcp",
+    "cwd": "/Users/yourname/path/to/mcp-oracle-database",
     "env": {
       "ORACLE_CONNECTION_STRING": "localhost:1521/XEPDB1",
       "ORACLE_USER": "system",
@@ -131,7 +131,7 @@ Chat with Cline and it will use the database tools:
   "mcpServers": {
     "oracle-db": {
       "command": "node",
-      "args": ["/Users/yourname/path/to/my-mcp/dist/server.js"],
+      "args": ["/Users/yourname/path/to/mcp-oracle-database/dist/server.js"],
       "env": {
         "ORACLE_CONNECTION_STRING": "localhost:1521/XEPDB1",
         "ORACLE_USER": "system",
@@ -169,7 +169,7 @@ Here's a complete example `settings.json` with Oracle MCP server:
     "oracle-db": {
       "command": "node",
       "args": ["dist/server.js"],
-      "cwd": "/Users/tan/GITHUB/my-mcp",
+      "cwd": "/Users/tan/GITHUB/mcp-oracle-database",
       "env": {
         "ORACLE_CONNECTION_STRING": "localhost:1521/XEPDB1",
         "ORACLE_USER": "system",
@@ -202,7 +202,7 @@ Don't put credentials in VS Code settings. Instead, load from your shell environ
     "oracle-db": {
       "command": "node",
       "args": ["dist/server.js"],
-      "cwd": "/Users/tan/GITHUB/my-mcp",
+      "cwd": "/Users/tan/GITHUB/mcp-oracle-database",
       "env": {}  // Empty - will inherit from shell
     }
   }
@@ -229,7 +229,7 @@ The server automatically loads from `.env` file in the project directory:
     "oracle-db": {
       "command": "node",
       "args": ["dist/server.js"],
-      "cwd": "/Users/tan/GITHUB/my-mcp"
+      "cwd": "/Users/tan/GITHUB/mcp-oracle-database"
       // No env section - will use .env file
     }
   }
@@ -528,7 +528,7 @@ You can configure multiple MCP servers for different databases:
     "oracle-production": {
       "command": "node",
       "args": ["dist/server.js"],
-      "cwd": "/path/to/my-mcp",
+      "cwd": "/path/to/mcp-oracle-database",
       "env": {
         "ORACLE_CONNECTION_STRING": "prod-db:1521/PROD",
         "ORACLE_USER": "readonly_user"
@@ -537,7 +537,7 @@ You can configure multiple MCP servers for different databases:
     "oracle-staging": {
       "command": "node",
       "args": ["dist/server.js"],
-      "cwd": "/path/to/my-mcp",
+      "cwd": "/path/to/mcp-oracle-database",
       "env": {
         "ORACLE_CONNECTION_STRING": "staging-db:1521/STAGING",
         "ORACLE_USER": "readonly_user"

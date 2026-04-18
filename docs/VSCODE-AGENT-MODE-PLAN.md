@@ -128,8 +128,8 @@ For personal use across all workspaces:
     "oracleDatabase": {
       "type": "stdio",
       "command": "node",
-      "args": ["/Users/tan/GITHUB/my-mcp/dist/server.js"],
-      "envFile": "/Users/tan/GITHUB/my-mcp/.env"
+      "args": ["/Users/tan/GITHUB/mcp-oracle-database/dist/server.js"],
+      "envFile": "/Users/tan/GITHUB/mcp-oracle-database/.env"
     }
   }
 }

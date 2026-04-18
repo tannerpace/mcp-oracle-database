@@ -26,8 +26,8 @@ npm install mcp-oracle-database
 ### From Source
 
 ```bash
-git clone https://github.com/tannerpace/my-mcp.git
-cd my-mcp
+git clone https://github.com/tannerpace/mcp-oracle-database.git
+cd mcp-oracle-database
 npm install && npm run build
 ```
 
@@ -168,7 +168,7 @@ The database will be available at:
 
 ```bash
 git clone <repository-url>
-cd my-mcp
+cd mcp-oracle-database
 npm install
 ```
 
@@ -238,7 +238,7 @@ Create or update your MCP client configuration file:
   "mcpServers": {
     "oracle-db": {
       "command": "node",
-      "args": ["/absolute/path/to/my-mcp/dist/server.js"],
+      "args": ["/absolute/path/to/mcp-oracle-database/dist/server.js"],
       "env": {
         "ORACLE_CONNECTION_STRING": "hostname:1521/servicename",
         "ORACLE_USER": "readonly_user",
@@ -255,7 +255,7 @@ Or use environment variables from your shell:
   "mcpServers": {
     "oracle-db": {
       "command": "node",
-      "args": ["/absolute/path/to/my-mcp/dist/server.js"]
+      "args": ["/absolute/path/to/mcp-oracle-database/dist/server.js"]
     }
   }
 }
@@ -335,7 +335,7 @@ Copilot: [calls get_database_schema with tableName="CUSTOMERS"]
 ### Project Structure
 
 ```
-my-mcp/
+mcp-oracle-database/
 ├── src/
 │   ├── server.ts              # Main MCP server entry point
 │   ├── client.ts              # Test client for local testing

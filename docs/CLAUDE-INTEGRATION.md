@@ -36,7 +36,7 @@ Create or edit the file with this content:
   "mcpServers": {
     "oracle-db": {
       "command": "node",
-      "args": ["/Users/yourname/path/to/my-mcp/dist/server.js"],
+      "args": ["/Users/yourname/path/to/mcp-oracle-database/dist/server.js"],
       "env": {
         "ORACLE_CONNECTION_STRING": "localhost:1521/XEPDB1",
         "ORACLE_USER": "system",
@@ -54,7 +54,7 @@ Create or edit the file with this content:
 ```
 
 **Important:** 
-- Replace `/Users/yourname/path/to/my-mcp` with your actual project path
+- Replace `/Users/yourname/path/to/mcp-oracle-database` with your actual project path
 - Use **absolute paths** (not relative like `./dist/server.js`)
 
 ### 3. Restart Claude Desktop
@@ -179,7 +179,7 @@ Instead of hardcoding credentials in config:
   "mcpServers": {
     "oracle-db": {
       "command": "node",
-      "args": ["/Users/yourname/path/to/my-mcp/dist/server.js"]
+      "args": ["/Users/yourname/path/to/mcp-oracle-database/dist/server.js"]
       // No env section - will use .env file in project
     }
   }
@@ -214,7 +214,7 @@ You can connect Claude to multiple databases:
   "mcpServers": {
     "oracle-production": {
       "command": "node",
-      "args": ["/path/to/my-mcp/dist/server.js"],
+      "args": ["/path/to/mcp-oracle-database/dist/server.js"],
       "env": {
         "ORACLE_CONNECTION_STRING": "prod-db:1521/PROD",
         "ORACLE_USER": "readonly",
@@ -223,7 +223,7 @@ You can connect Claude to multiple databases:
     },
     "oracle-staging": {
       "command": "node",
-      "args": ["/path/to/my-mcp/dist/server.js"],
+      "args": ["/path/to/mcp-oracle-database/dist/server.js"],
       "env": {
         "ORACLE_CONNECTION_STRING": "staging-db:1521/STAGING",
         "ORACLE_USER": "readonly",
@@ -330,7 +330,7 @@ Here's a production-ready configuration:
   "mcpServers": {
     "oracle-db": {
       "command": "node",
-      "args": ["/Users/tan/GITHUB/my-mcp/dist/server.js"],
+      "args": ["/Users/tan/GITHUB/mcp-oracle-database/dist/server.js"],
       "env": {
         "ORACLE_CONNECTION_STRING": "localhost:1521/XEPDB1",
         "ORACLE_USER": "claude_readonly",

@@ -38,12 +38,12 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tannerpace/my-mcp.git"
+    "url": "https://github.com/tannerpace/mcp-oracle-database.git"
   },
   "bugs": {
-    "url": "https://github.com/tannerpace/my-mcp/issues"
+    "url": "https://github.com/tannerpace/mcp-oracle-database/issues"
   },
-  "homepage": "https://github.com/tannerpace/my-mcp#readme",
+  "homepage": "https://github.com/tannerpace/mcp-oracle-database#readme",
   "engines": {
     "node": ">=18.17.0"
   },

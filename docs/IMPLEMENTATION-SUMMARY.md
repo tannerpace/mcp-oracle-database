@@ -189,7 +189,7 @@ Copilot (to user):
 ## File Structure
 
 ```
-my-mcp/
+mcp-oracle-database/
 ├── .vscode/
 │   └── mcp.json.example          # NEW: MCP configuration template
 ├── .github/
