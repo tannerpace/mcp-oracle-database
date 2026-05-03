@@ -18,6 +18,7 @@
     "start": "node dist/server.js",
     "test-client": "node dist/client.js",
     "test-discovery": "node dist/test-discovery.js",
+    "test-query": "node dist/manualQuery.js",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run clean && npm run build"
