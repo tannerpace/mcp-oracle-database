@@ -7,22 +7,22 @@ import {
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
 import getConfig from './config.js';
-import { closePool } from './database/oracleConnection.js';
-import logger from './utils/logger.js';
-import { getDatabaseSchema, GetSchemaSchema } from './tools/getSchema.js';
-import { queryDatabase, QueryDatabaseSchema } from './tools/queryDatabase.js';
+import { closePool, getOrCreatePool } from './database/oracleConnection.js';
 import {
-  listTables,
-  ListTablesSchema,
   describeTable,
   DescribeTableSchema,
-  getTableRelations,
-  GetTableRelationsSchema,
   getSampleValues,
   GetSampleValuesSchema,
+  getTableRelations,
+  GetTableRelationsSchema,
+  listTables,
+  ListTablesSchema,
   suggestRelatedTables,
   SuggestRelatedTablesSchema,
 } from './tools/discovery/index.js';
+import { getDatabaseSchema, GetSchemaSchema } from './tools/getSchema.js';
+import { queryDatabase, QueryDatabaseSchema } from './tools/queryDatabase.js';
+import logger from './utils/logger.js';
 
 const config = getConfig();
 
@@ -290,6 +290,15 @@ async function start() {
       };
     }
   });
+
+  // Try to establish a DB connection pool at startup for clearer logs
+  try {
+    logger.info('Attempting to connect to Oracle database (startup warm-up)');
+    await getOrCreatePool();
+    logger.info('Connected to Oracle database (pool ready)');
+  } catch (err: any) {
+    logger.error('Could not connect to Oracle database at startup', { error: err?.message ?? err });
+  }
 
   // Create stdio transport and connect
   const transport = new StdioServerTransport();
