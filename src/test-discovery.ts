@@ -1,6 +1,47 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
+interface ToolPayload {
+  success: boolean;
+  error?: string;
+  data?: unknown;
+  cached?: boolean;
+}
+
+function parseToolPayload(rawResult: unknown): ToolPayload {
+  if (
+    !rawResult ||
+    typeof rawResult !== 'object' ||
+    !('content' in rawResult) ||
+    !Array.isArray((rawResult as { content: unknown }).content)
+  ) {
+    throw new Error('Invalid MCP tool response shape');
+  }
+
+  const content = (rawResult as { content: unknown[] }).content;
+  if (content.length === 0) {
+    throw new Error('MCP tool response has no content items');
+  }
+
+  const firstItem = content[0];
+  if (
+    !firstItem ||
+    typeof firstItem !== 'object' ||
+    !('text' in firstItem) ||
+    typeof (firstItem as { text?: unknown }).text !== 'string'
+  ) {
+    throw new Error('MCP tool response does not contain text content');
+  }
+
+  return JSON.parse((firstItem as { text: string }).text) as ToolPayload;
+}
+
+function printToolError(testName: string, payload: ToolPayload): void {
+  if (!payload.success) {
+    console.error(`❌ ${testName} failed: ${payload.error || 'Unknown error'}`);
+  }
+}
+
 /**
  * Test client for schema discovery tools
  */
@@ -30,7 +71,7 @@ async function main() {
   await client.connect(transport);
   console.log('✅ Connected to MCP server\n');
 
-  const results: any[] = [];
+  const results: Array<Record<string, unknown>> = [];
 
   try {
     // Test 1: List available tools
@@ -55,20 +96,23 @@ async function main() {
         includeRowCounts: false,
       },
     });
-    const listTablesData = JSON.parse((listTablesResult as any).content[0].text);
+    const listTablesData = parseToolPayload(listTablesResult);
     console.log(`Success: ${listTablesData.success}`);
-    console.log(`Found ${listTablesData.data?.length || 0} tables`);
+    printToolError('List Tables (fast)', listTablesData);
+    const listTablesRows = Array.isArray(listTablesData.data) ? listTablesData.data : [];
+    console.log(`Found ${listTablesRows.length} tables`);
     console.log(`Cached: ${listTablesData.cached || false}`);
-    if (listTablesData.data && listTablesData.data.length > 0) {
+    if (listTablesRows.length > 0) {
       console.log('Sample tables:');
-      listTablesData.data.slice(0, 5).forEach((table: any) => {
-        console.log(`  - ${table.tableName} (${table.tablespace || 'N/A'})`);
+      listTablesRows.slice(0, 5).forEach((table) => {
+        console.log('  -', table);
       });
     }
     results.push({
       test: 'List Tables (fast)',
       success: listTablesData.success,
-      tableCount: listTablesData.data?.length || 0,
+      tableCount: listTablesRows.length,
+      error: listTablesData.error,
     });
     console.log('\n');
 
@@ -80,26 +124,37 @@ async function main() {
         includeRowCounts: true,
       },
     });
-    const listTablesWithCountsData = JSON.parse((listTablesWithCountsResult as any).content[0].text);
+    const listTablesWithCountsData = parseToolPayload(listTablesWithCountsResult);
     console.log(`Success: ${listTablesWithCountsData.success}`);
-    console.log(`Found ${listTablesWithCountsData.data?.length || 0} tables`);
-    if (listTablesWithCountsData.data && listTablesWithCountsData.data.length > 0) {
+    printToolError('List Tables (with counts)', listTablesWithCountsData);
+    const listTablesWithCountsRows = Array.isArray(listTablesWithCountsData.data)
+      ? listTablesWithCountsData.data
+      : [];
+    console.log(`Found ${listTablesWithCountsRows.length} tables`);
+    if (listTablesWithCountsRows.length > 0) {
       console.log('Sample tables with row counts:');
-      listTablesWithCountsData.data.slice(0, 5).forEach((table: any) => {
-        console.log(`  - ${table.tableName}: ${table.rowCount} rows`);
+      listTablesWithCountsRows.slice(0, 5).forEach((table) => {
+        console.log('  -', table);
       });
     }
     results.push({
       test: 'List Tables (with counts)',
       success: listTablesWithCountsData.success,
-      tableCount: listTablesWithCountsData.data?.length || 0,
+      tableCount: listTablesWithCountsRows.length,
+      error: listTablesWithCountsData.error,
     });
     console.log('\n');
 
     // Get a table name for further tests
     let testTableName = 'HELP'; // Default fallback
-    if (listTablesData.data && listTablesData.data.length > 0) {
-      testTableName = listTablesData.data[0].tableName;
+    if (
+      listTablesRows.length > 0 &&
+      typeof listTablesRows[0] === 'object' &&
+      listTablesRows[0] !== null &&
+      'tableName' in (listTablesRows[0] as Record<string, unknown>) &&
+      typeof (listTablesRows[0] as Record<string, unknown>).tableName === 'string'
+    ) {
+      testTableName = (listTablesRows[0] as Record<string, string>).tableName;
     }
 
     // Test 4: Describe a table
@@ -111,23 +166,17 @@ async function main() {
         includeConstraints: true,
       },
     });
-    const describeTableData = JSON.parse((describeTableResult as any).content[0].text);
+    const describeTableData = parseToolPayload(describeTableResult);
     console.log(`Success: ${describeTableData.success}`);
-    if (describeTableData.success && describeTableData.data) {
-      console.log(`Table: ${describeTableData.data.tableName}`);
-      console.log(`Columns: ${describeTableData.data.columns.length}`);
-      console.log('Sample columns:');
-      describeTableData.data.columns.slice(0, 5).forEach((col: any) => {
-        console.log(`  - ${col.columnName}: ${col.dataType} (nullable: ${col.nullable})`);
-      });
-      if (describeTableData.data.constraints) {
-        console.log(`Constraints: ${describeTableData.data.constraints.length}`);
-      }
+    printToolError('Describe Table', describeTableData);
+    if (describeTableData.success) {
+      console.log('Describe payload:', describeTableData.data);
     }
     results.push({
       test: 'Describe Table',
       success: describeTableData.success,
       tableName: testTableName,
+      error: describeTableData.error,
     });
     console.log('\n');
 
@@ -139,21 +188,17 @@ async function main() {
         tableName: testTableName,
       },
     });
-    const relationsData = JSON.parse((relationsResult as any).content[0].text);
+    const relationsData = parseToolPayload(relationsResult);
     console.log(`Success: ${relationsData.success}`);
-    if (relationsData.success && relationsData.data) {
-      console.log(`Foreign Keys (outgoing): ${relationsData.data.foreignKeys.length}`);
-      console.log(`Referenced By (incoming): ${relationsData.data.referencedBy.length}`);
-      if (relationsData.data.foreignKeys.length > 0) {
-        console.log('Sample FK:');
-        const fk = relationsData.data.foreignKeys[0];
-        console.log(`  ${fk.fromTable}(${fk.fromColumns.join(',')}) -> ${fk.toTable}(${fk.toColumns.join(',')})`);
-      }
+    printToolError('Get Table Relations', relationsData);
+    if (relationsData.success) {
+      console.log('Relations payload:', relationsData.data);
     }
     results.push({
       test: 'Get Table Relations',
       success: relationsData.success,
       tableName: testTableName,
+      error: relationsData.error,
     });
     console.log('\n');
 
@@ -166,23 +211,17 @@ async function main() {
         sampleSize: 3,
       },
     });
-    const sampleValuesData = JSON.parse((sampleValuesResult as any).content[0].text);
+    const sampleValuesData = parseToolPayload(sampleValuesResult);
     console.log(`Success: ${sampleValuesData.success}`);
-    if (sampleValuesData.success && sampleValuesData.data) {
-      console.log(`Sampled ${sampleValuesData.data.length} columns`);
-      console.log('Sample column data:');
-      sampleValuesData.data.slice(0, 3).forEach((sample: any) => {
-        console.log(`  - ${sample.columnName}:`);
-        console.log(`    Values: ${JSON.stringify(sample.sampleValues).substring(0, 100)}`);
-        if (sample.distinctCount !== undefined) {
-          console.log(`    Distinct: ${sample.distinctCount}, Nulls: ${sample.nullCount}`);
-        }
-      });
+    printToolError('Get Sample Values', sampleValuesData);
+    if (sampleValuesData.success) {
+      console.log('Sample values payload:', sampleValuesData.data);
     }
     results.push({
       test: 'Get Sample Values',
       success: sampleValuesData.success,
       tableName: testTableName,
+      error: sampleValuesData.error,
     });
     console.log('\n');
 
@@ -195,19 +234,17 @@ async function main() {
         maxSuggestions: 5,
       },
     });
-    const suggestData = JSON.parse((suggestResult as any).content[0].text);
+    const suggestData = parseToolPayload(suggestResult);
     console.log(`Success: ${suggestData.success}`);
-    if (suggestData.success && suggestData.data) {
-      console.log(`Found ${suggestData.data.length} related table suggestions`);
-      suggestData.data.forEach((hint: any) => {
-        console.log(`  - ${hint.tableName} (${hint.relationshipType}, confidence: ${hint.confidence})`);
-        console.log(`    ${hint.description}`);
-      });
+    printToolError('Suggest Related Tables', suggestData);
+    if (suggestData.success) {
+      console.log('Suggestions payload:', suggestData.data);
     }
     results.push({
       test: 'Suggest Related Tables',
       success: suggestData.success,
       tableName: testTableName,
+      error: suggestData.error,
     });
     console.log('\n');
 
@@ -219,13 +256,15 @@ async function main() {
         includeRowCounts: false,
       },
     });
-    const cachedListData = JSON.parse((cachedListResult as any).content[0].text);
+    const cachedListData = parseToolPayload(cachedListResult);
     console.log(`Success: ${cachedListData.success}`);
+    printToolError('Cache Test', cachedListData);
     console.log(`Cached: ${cachedListData.cached || false} (should be true)`);
     results.push({
       test: 'Cache Test',
       success: cachedListData.success,
       cached: cachedListData.cached,
+      error: cachedListData.error,
     });
     console.log('\n');
 
@@ -235,6 +274,11 @@ async function main() {
       console.log(`${index + 1}. ${result.test}: ${result.success ? '✅' : '❌'}`);
     });
 
+    const failedCount = results.filter((result) => result.success === false).length;
+    if (failedCount > 0) {
+      throw new Error(`${failedCount} discovery test(s) failed`);
+    }
+
     // Return results for potential further processing
     return results;
 
@@ -242,14 +286,8 @@ async function main() {
     console.error('❌ Error during MCP operations:', error);
     throw error;
   } finally {
-    // Close the connection
-    setTimeout(async () => {
-      await client.close();
-      console.log('\n✅ Client disconnected');
-
-      // Exit cleanly
-      process.exit(0);
-    }, 500);
+    await client.close();
+    console.log('\n✅ Client disconnected');
   }
 }
 
