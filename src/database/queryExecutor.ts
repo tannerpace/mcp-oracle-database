@@ -6,6 +6,56 @@ import type { QueryResult } from './types.js';
 
 const config = getConfig();
 
+const WRITE_LOCK_PATTERN = /\bFOR\s+UPDATE\b/i;
+
+function stripLeadingCommentsAndWhitespace(query: string): string {
+  let remaining = query;
+
+  while (true) {
+    const trimmed = remaining.trimStart();
+
+    if (trimmed.startsWith('--')) {
+      const newlineIndex = trimmed.indexOf('\n');
+      remaining = newlineIndex === -1 ? '' : trimmed.slice(newlineIndex + 1);
+      continue;
+    }
+
+    if (trimmed.startsWith('/*')) {
+      const blockEnd = trimmed.indexOf('*/');
+      if (blockEnd === -1) {
+        return '';
+      }
+      remaining = trimmed.slice(blockEnd + 2);
+      continue;
+    }
+
+    return trimmed;
+  }
+}
+
+function ensureReadOnlyQuery(query: string): void {
+  if (!config.ENFORCE_READ_ONLY_QUERIES) {
+    return;
+  }
+
+  const normalized = stripLeadingCommentsAndWhitespace(query);
+  if (!normalized) {
+    throw new Error('Query cannot be empty after removing comments');
+  }
+
+  if (!/^SELECT\b/i.test(normalized)) {
+    throw new Error(
+      'Only SELECT statements are allowed when ENFORCE_READ_ONLY_QUERIES=true'
+    );
+  }
+
+  if (WRITE_LOCK_PATTERN.test(normalized)) {
+    throw new Error(
+      'SELECT ... FOR UPDATE is not allowed when ENFORCE_READ_ONLY_QUERIES=true'
+    );
+  }
+}
+
 /**
  * Execute a read-only SELECT query with timeout and row limits
  */
@@ -23,6 +73,9 @@ export async function executeQuery(
     if (query.length > config.MAX_QUERY_LENGTH) {
       throw new Error(`Query exceeds maximum length of ${config.MAX_QUERY_LENGTH} characters`);
     }
+
+    // Defense-in-depth guard in case DB credentials are accidentally over-privileged.
+    ensureReadOnlyQuery(query);
 
     // Get connection from pool
     connection = await getConnection();
