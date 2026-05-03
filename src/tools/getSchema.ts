@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { getSchema, executeQuery } from '../database/queryExecutor.js';
-import logger from '../logging/logger.js';
+import { executeQuery, getSchema } from '../database/queryExecutor.js';
 import type { QueryResult } from '../database/types.js';
+import logger from '../utils/logger.js';
 
 // Input schema for get_database_schema tool
 export const GetSchemaSchema = z.object({
@@ -57,16 +57,16 @@ async function findSimilarTableNames(tableName: string): Promise<string[]> {
       FROM user_tables
       ORDER BY table_name
     `;
-    
+
     const result: QueryResult = await executeQuery(query, { maxRows: 1000 });
     const allTables = result.rows.map((row: Record<string, any>) => row.TABLE_NAME as string);
-    
+
     // Calculate distances and find closest matches
     const tableDistances = allTables.map((table: string) => ({
       name: table,
       distance: levenshteinDistance(tableName.toUpperCase(), table),
     }));
-    
+
     // Sort by distance and return top matches
     return tableDistances
       .sort((a, b) => a.distance - b.distance)
@@ -96,12 +96,12 @@ export async function getDatabaseSchema(input: GetSchemaInput = {}) {
     if (validated.tableName && result.rowCount === 0) {
       // Table doesn't exist - provide helpful error message
       const similarTables = await findSimilarTableNames(validated.tableName);
-      
+
       let errorMessage = `Table '${validated.tableName}' not found in the database.`;
-      
+
       // Add case sensitivity hint
       errorMessage += `\n\nNote: Oracle table names are case-sensitive when queried from system tables. The table name is automatically converted to UPPERCASE ('${validated.tableName.toUpperCase()}') in the query.`;
-      
+
       // Add suggestions if similar tables exist
       if (similarTables.length > 0) {
         errorMessage += `\n\nDid you mean one of these tables?\n${similarTables.map(t => `  - ${t}`).join('\n')}`;
@@ -109,10 +109,10 @@ export async function getDatabaseSchema(input: GetSchemaInput = {}) {
       } else {
         errorMessage += `\n\nTo see all available tables, call this tool without the tableName parameter:\n  get_database_schema()`;
       }
-      
-      logger.warn('Table not found', { 
+
+      logger.warn('Table not found', {
         tableName: validated.tableName,
-        suggestions: similarTables 
+        suggestions: similarTables
       });
 
       return {
@@ -149,7 +149,7 @@ export async function getDatabaseSchema(input: GetSchemaInput = {}) {
 
     // Enhanced error message with context
     let errorMessage = `Failed to retrieve database schema: ${err.message}`;
-    
+
     // Provide specific guidance based on error type
     if (err.message.includes('ORA-00942')) {
       errorMessage += '\n\nThis error suggests the database user does not have SELECT privileges on system tables (user_tables, user_tab_columns).';
