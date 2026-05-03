@@ -1,3 +1,4 @@
+import oracledb from 'oracledb';
 import { z } from 'zod';
 import { getConnection } from '../../database/oracleConnection.js';
 import logger, { audit } from '../../utils/logger.js';
@@ -31,7 +32,7 @@ export async function suggestRelatedTables(input: SuggestRelatedTablesInput): Pr
   error?: string;
 }> {
   const startTime = Date.now();
-  
+
   try {
     const validated = SuggestRelatedTablesSchema.parse(input);
     const tableNameUpper = validated.tableName.toUpperCase();
@@ -43,7 +44,7 @@ export async function suggestRelatedTables(input: SuggestRelatedTablesInput): Pr
     });
 
     let connection;
-    
+
     try {
       connection = await getConnection();
 
@@ -69,15 +70,15 @@ export async function suggestRelatedTables(input: SuggestRelatedTablesInput): Pr
 
       const fkResult = await connection.execute(
         fkQuery,
-        [tableNameUpper, tableNameUpper, tableNameUpper, tableNameUpper],
+        [tableNameUpper, tableNameUpper, tableNameUpper, tableNameUpper, tableNameUpper],
         {
-          outFormat: 2,
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
           maxRows: 100,
         }
       );
 
       const fkRows = fkResult.rows as any[];
-      
+
       for (const row of fkRows) {
         hints.push({
           tableName: row.RELATED_TABLE,
@@ -90,7 +91,7 @@ export async function suggestRelatedTables(input: SuggestRelatedTablesInput): Pr
       // 2. Find tables with similar naming patterns (confidence: 0.7)
       // Extract base name (e.g., "ORDER" from "ORDERS" or "ORDER_ITEMS")
       const baseName = extractBaseName(tableNameUpper);
-      
+
       if (baseName) {
         const namingQuery = `
           SELECT table_name
@@ -114,16 +115,16 @@ export async function suggestRelatedTables(input: SuggestRelatedTablesInput): Pr
             `%_${baseName}_%`,
           ],
           {
-            outFormat: 2,
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
             maxRows: 20,
           }
         );
 
         const namingRows = namingResult.rows as any[];
-        
+
         for (const row of namingRows) {
           const relatedTable = row.TABLE_NAME;
-          
+
           // Skip if already added via FK
           if (!hints.find(h => h.tableName === relatedTable)) {
             hints.push({
@@ -158,17 +159,17 @@ export async function suggestRelatedTables(input: SuggestRelatedTablesInput): Pr
         sharedColumnsQuery,
         [tableNameUpper, tableNameUpper],
         {
-          outFormat: 2,
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
           maxRows: 20,
         }
       );
 
       const sharedRows = sharedResult.rows as any[];
-      
+
       for (const row of sharedRows) {
         const relatedTable = row.TABLE_NAME;
         const sharedCount = Number(row.SHARED_COUNT);
-        
+
         // Skip if already added
         if (!hints.find(h => h.tableName === relatedTable)) {
           hints.push({
@@ -215,7 +216,7 @@ export async function suggestRelatedTables(input: SuggestRelatedTablesInput): Pr
 
   } catch (err: any) {
     const executionTime = Date.now() - startTime;
-    
+
     logger.error('Suggest related tables failed', {
       error: err.message,
       executionTime,
@@ -246,7 +247,7 @@ function extractBaseName(tableName: string): string | null {
 
   // Take first part if underscore-separated
   const parts = withoutSuffix.split('_');
-  
+
   if (parts.length > 0 && parts[0].length >= 3) {
     return parts[0];
   }

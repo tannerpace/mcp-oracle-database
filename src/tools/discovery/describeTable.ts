@@ -1,8 +1,9 @@
+import oracledb from 'oracledb';
 import { z } from 'zod';
 import { getConnection } from '../../database/oracleConnection.js';
 import logger, { audit } from '../../utils/logger.js';
-import type { ColumnInfo, ConstraintInfo } from './types.js';
 import { schemaCache } from './cache.js';
+import type { ColumnInfo, ConstraintInfo } from './types.js';
 
 // Input schema for describeTable tool
 export const DescribeTableSchema = z.object({
@@ -39,11 +40,11 @@ export async function describeTable(input: DescribeTableInput): Promise<{
   cached?: boolean;
 }> {
   const startTime = Date.now();
-  
+
   try {
     const validated = DescribeTableSchema.parse(input);
     const tableNameUpper = validated.tableName.toUpperCase();
-    
+
     // Check cache first
     const cacheKey = `describeTable:${tableNameUpper}:${validated.includeConstraints}`;
     const cached = schemaCache.get<{
@@ -51,12 +52,12 @@ export async function describeTable(input: DescribeTableInput): Promise<{
       columns: ColumnInfo[];
       constraints?: ConstraintInfo[];
     }>(cacheKey);
-    
+
     if (cached) {
-      logger.debug('Returning cached table description', { 
+      logger.debug('Returning cached table description', {
         tableName: tableNameUpper,
       });
-      
+
       return {
         success: true,
         data: cached,
@@ -70,7 +71,7 @@ export async function describeTable(input: DescribeTableInput): Promise<{
     });
 
     let connection;
-    
+
     try {
       connection = await getConnection();
 
@@ -96,13 +97,13 @@ export async function describeTable(input: DescribeTableInput): Promise<{
         columnQuery,
         [tableNameUpper],
         {
-          outFormat: 2, // OBJECT format
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
           maxRows: 1000,
         }
       );
 
       const columnRows = columnResult.rows as any[];
-      
+
       if (columnRows.length === 0) {
         throw new Error(`Table ${validated.tableName} not found or not accessible`);
       }
@@ -135,7 +136,7 @@ export async function describeTable(input: DescribeTableInput): Promise<{
 
       // Get constraints if requested
       let constraints: ConstraintInfo[] | undefined;
-      
+
       if (validated.includeConstraints) {
         const constraintQuery = `
           SELECT 
@@ -155,7 +156,7 @@ export async function describeTable(input: DescribeTableInput): Promise<{
           constraintQuery,
           [tableNameUpper],
           {
-            outFormat: 2,
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
             maxRows: 1000,
           }
         );
@@ -167,7 +168,7 @@ export async function describeTable(input: DescribeTableInput): Promise<{
 
         for (const row of constraintRows) {
           const name = row.CONSTRAINT_NAME;
-          
+
           if (!constraintMap.has(name)) {
             const constraint: ConstraintInfo = {
               constraintName: name,
@@ -209,11 +210,11 @@ export async function describeTable(input: DescribeTableInput): Promise<{
               const refResult = await connection.execute(
                 refQuery,
                 [refConstraintName],
-                { outFormat: 2, maxRows: 100 }
+                { outFormat: oracledb.OUT_FORMAT_OBJECT, maxRows: 100 }
               );
 
               const refRows = refResult.rows as any[];
-              
+
               if (refRows.length > 0) {
                 constraint.refTableName = refRows[0].TABLE_NAME;
                 constraint.refColumns = refRows.map(r => r.COLUMN_NAME);
@@ -267,7 +268,7 @@ export async function describeTable(input: DescribeTableInput): Promise<{
 
   } catch (err: any) {
     const executionTime = Date.now() - startTime;
-    
+
     logger.error('Describe table failed', {
       error: err.message,
       executionTime,

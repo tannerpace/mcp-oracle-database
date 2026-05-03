@@ -1,8 +1,9 @@
+import oracledb from 'oracledb';
 import { z } from 'zod';
 import { getConnection } from '../../database/oracleConnection.js';
 import logger, { audit } from '../../utils/logger.js';
-import type { TableRelations, ForeignKeyRelation } from './types.js';
 import { schemaCache } from './cache.js';
+import type { ForeignKeyRelation, TableRelations } from './types.js';
 
 // Input schema for getTableRelations tool
 export const GetTableRelationsSchema = z.object({
@@ -32,20 +33,20 @@ export async function getTableRelations(input: GetTableRelationsInput): Promise<
   cached?: boolean;
 }> {
   const startTime = Date.now();
-  
+
   try {
     const validated = GetTableRelationsSchema.parse(input);
     const tableNameUpper = validated.tableName.toUpperCase();
-    
+
     // Check cache first
     const cacheKey = `tableRelations:${tableNameUpper}`;
     const cached = schemaCache.get<TableRelations>(cacheKey);
-    
+
     if (cached) {
-      logger.debug('Returning cached table relations', { 
+      logger.debug('Returning cached table relations', {
         tableName: tableNameUpper,
       });
-      
+
       return {
         success: true,
         data: cached,
@@ -58,7 +59,7 @@ export async function getTableRelations(input: GetTableRelationsInput): Promise<
     });
 
     let connection;
-    
+
     try {
       connection = await getConnection();
 
@@ -86,7 +87,7 @@ export async function getTableRelations(input: GetTableRelationsInput): Promise<
         foreignKeysQuery,
         [tableNameUpper],
         {
-          outFormat: 2,
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
           maxRows: 1000,
         }
       );
@@ -95,10 +96,10 @@ export async function getTableRelations(input: GetTableRelationsInput): Promise<
 
       // Group by constraint_name to build foreign key objects
       const fkMap = new Map<string, ForeignKeyRelation>();
-      
+
       for (const row of fkRows) {
         const name = row.CONSTRAINT_NAME;
-        
+
         if (!fkMap.has(name)) {
           fkMap.set(name, {
             constraintName: name,
@@ -109,7 +110,7 @@ export async function getTableRelations(input: GetTableRelationsInput): Promise<
             deleteRule: row.DELETE_RULE || undefined,
           });
         }
-        
+
         const fk = fkMap.get(name)!;
         fk.fromColumns.push(row.FROM_COLUMN);
         fk.toColumns.push(row.TO_COLUMN);
@@ -141,7 +142,7 @@ export async function getTableRelations(input: GetTableRelationsInput): Promise<
         referencedByQuery,
         [tableNameUpper],
         {
-          outFormat: 2,
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
           maxRows: 1000,
         }
       );
@@ -150,10 +151,10 @@ export async function getTableRelations(input: GetTableRelationsInput): Promise<
 
       // Group by constraint_name
       const refByMap = new Map<string, ForeignKeyRelation>();
-      
+
       for (const row of refByRows) {
         const name = row.CONSTRAINT_NAME;
-        
+
         if (!refByMap.has(name)) {
           refByMap.set(name, {
             constraintName: name,
@@ -164,7 +165,7 @@ export async function getTableRelations(input: GetTableRelationsInput): Promise<
             deleteRule: row.DELETE_RULE || undefined,
           });
         }
-        
+
         const ref = refByMap.get(name)!;
         ref.fromColumns.push(row.FROM_COLUMN);
         ref.toColumns.push(row.TO_COLUMN);
@@ -215,7 +216,7 @@ export async function getTableRelations(input: GetTableRelationsInput): Promise<
 
   } catch (err: any) {
     const executionTime = Date.now() - startTime;
-    
+
     logger.error('Get table relations failed', {
       error: err.message,
       executionTime,

@@ -1,8 +1,9 @@
+import oracledb from 'oracledb';
 import { z } from 'zod';
 import { getConnection } from '../../database/oracleConnection.js';
 import logger, { audit } from '../../utils/logger.js';
-import type { TableInfo } from './types.js';
 import { schemaCache } from './cache.js';
+import type { TableInfo } from './types.js';
 
 // Input schema for listTables tool
 export const ListTablesSchema = z.object({
@@ -33,20 +34,20 @@ export async function listTables(input: ListTablesInput = { includeRowCounts: fa
   cached?: boolean;
 }> {
   const startTime = Date.now();
-  
+
   try {
     const validated = ListTablesSchema.parse(input);
-    
+
     // Check cache first
     const cacheKey = `listTables:${validated.includeRowCounts}`;
     const cached = schemaCache.get<TableInfo[]>(cacheKey);
-    
+
     if (cached) {
-      logger.debug('Returning cached table list', { 
+      logger.debug('Returning cached table list', {
         count: cached.length,
         includeRowCounts: validated.includeRowCounts,
       });
-      
+
       return {
         success: true,
         data: cached,
@@ -59,13 +60,13 @@ export async function listTables(input: ListTablesInput = { includeRowCounts: fa
     });
 
     let connection;
-    
+
     try {
       connection = await getConnection();
 
       // Build query based on options
       let query: string;
-      
+
       if (validated.includeRowCounts) {
         // Get row counts from statistics (approximate but fast)
         // NOTE: Row counts from user_tab_statistics are APPROXIMATE and depend on
@@ -78,10 +79,13 @@ export async function listTables(input: ListTablesInput = { includeRowCounts: fa
           SELECT 
             t.table_name,
             NVL(s.num_rows, 0) as row_count,
-            TO_CHAR(t.last_ddl_time, 'YYYY-MM-DD HH24:MI:SS') as last_modified,
+            TO_CHAR(o.last_ddl_time, 'YYYY-MM-DD HH24:MI:SS') as last_modified,
             t.tablespace_name,
             c.comments
           FROM user_tables t
+          LEFT JOIN user_objects o 
+            ON t.table_name = o.object_name 
+            AND o.object_type = 'TABLE'
           LEFT JOIN user_tab_statistics s ON t.table_name = s.table_name
           LEFT JOIN user_tab_comments c ON t.table_name = c.table_name
           ORDER BY t.table_name
@@ -91,22 +95,25 @@ export async function listTables(input: ListTablesInput = { includeRowCounts: fa
         query = `
           SELECT 
             t.table_name,
-            TO_CHAR(t.last_ddl_time, 'YYYY-MM-DD HH24:MI:SS') as last_modified,
+            TO_CHAR(o.last_ddl_time, 'YYYY-MM-DD HH24:MI:SS') as last_modified,
             t.tablespace_name,
             c.comments
           FROM user_tables t
+          LEFT JOIN user_objects o 
+            ON t.table_name = o.object_name 
+            AND o.object_type = 'TABLE'
           LEFT JOIN user_tab_comments c ON t.table_name = c.table_name
           ORDER BY t.table_name
         `;
       }
 
       const result = await connection.execute(query, [], {
-        outFormat: 2, // OBJECT format
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
         maxRows: 1000,
       });
 
       const rows = result.rows as any[];
-      
+
       const tables: TableInfo[] = rows.map((row) => {
         const tableInfo: TableInfo = {
           tableName: row.TABLE_NAME,
@@ -159,7 +166,7 @@ export async function listTables(input: ListTablesInput = { includeRowCounts: fa
 
   } catch (err: any) {
     const executionTime = Date.now() - startTime;
-    
+
     logger.error('List tables failed', {
       error: err.message,
       executionTime,

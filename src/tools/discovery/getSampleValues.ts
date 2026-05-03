@@ -1,3 +1,4 @@
+import oracledb from 'oracledb';
 import { z } from 'zod';
 import { getConnection } from '../../database/oracleConnection.js';
 import logger, { audit } from '../../utils/logger.js';
@@ -42,7 +43,7 @@ export async function getSampleValues(input: GetSampleValuesInput): Promise<{
   error?: string;
 }> {
   const startTime = Date.now();
-  
+
   try {
     const validated = GetSampleValuesSchema.parse(input);
     const tableNameUpper = validated.tableName.toUpperCase();
@@ -55,13 +56,13 @@ export async function getSampleValues(input: GetSampleValuesInput): Promise<{
     });
 
     let connection;
-    
+
     try {
       connection = await getConnection();
 
       // First, get column list if not specified
       let columns: string[];
-      
+
       if (validated.columnNames && validated.columnNames.length > 0) {
         columns = validated.columnNames.map(c => c.toUpperCase());
       } else {
@@ -77,13 +78,13 @@ export async function getSampleValues(input: GetSampleValuesInput): Promise<{
           columnQuery,
           [tableNameUpper],
           {
-            outFormat: 2,
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
             maxRows: 1000,
           }
         );
 
         const columnRows = columnResult.rows as any[];
-        
+
         if (columnRows.length === 0) {
           throw new Error(`Table ${validated.tableName} not found or not accessible`);
         }
@@ -128,7 +129,7 @@ export async function getSampleValues(input: GetSampleValuesInput): Promise<{
 
         try {
           const sampleResult = await connection.execute(sampleQuery, [], {
-            outFormat: 2,
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
             maxRows: sampleSize,
           });
 
@@ -143,13 +144,13 @@ export async function getSampleValues(input: GetSampleValuesInput): Promise<{
           `;
 
           const distinctResult = await connection.execute(distinctQuery, [], {
-            outFormat: 2,
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
             maxRows: 1,
           });
 
           const distinctRows = distinctResult.rows as any[];
-          const distinctCount = distinctRows.length > 0 
-            ? Number(distinctRows[0].DISTINCT_COUNT) 
+          const distinctCount = distinctRows.length > 0
+            ? Number(distinctRows[0].DISTINCT_COUNT)
             : 0;
 
           // Get null count (limited to first 1000 rows for safety)
@@ -164,13 +165,13 @@ export async function getSampleValues(input: GetSampleValuesInput): Promise<{
           `;
 
           const nullResult = await connection.execute(nullQuery, [], {
-            outFormat: 2,
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
             maxRows: 1,
           });
 
           const nullRows = nullResult.rows as any[];
-          const nullCount = nullRows.length > 0 
-            ? Number(nullRows[0].NULL_COUNT) 
+          const nullCount = nullRows.length > 0
+            ? Number(nullRows[0].NULL_COUNT)
             : 0;
 
           sampleValues.push({
@@ -186,7 +187,7 @@ export async function getSampleValues(input: GetSampleValuesInput): Promise<{
             columnName,
             error: err.message,
           });
-          
+
           // Include column with error indicator
           sampleValues.push({
             columnName,
@@ -227,7 +228,7 @@ export async function getSampleValues(input: GetSampleValuesInput): Promise<{
 
   } catch (err: any) {
     const executionTime = Date.now() - startTime;
-    
+
     logger.error('Get sample values failed', {
       error: err.message,
       executionTime,
