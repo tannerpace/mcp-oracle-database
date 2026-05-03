@@ -23,6 +23,7 @@ import {
 import { getDatabaseSchema, GetSchemaSchema } from './tools/getSchema.js';
 import { queryDatabase, QueryDatabaseSchema } from './tools/queryDatabase.js';
 import logger from './utils/logger.js';
+import { formatToolResponse } from './utils/responseFormatter.js';
 
 const config = getConfig();
 
@@ -198,7 +199,7 @@ async function start() {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
+              text: formatToolResponse(name, result),
             },
           ],
         };
@@ -210,7 +211,7 @@ async function start() {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
+              text: formatToolResponse(name, result),
             },
           ],
         };
@@ -222,7 +223,7 @@ async function start() {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
+              text: formatToolResponse(name, result),
             },
           ],
         };
@@ -234,7 +235,7 @@ async function start() {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
+              text: formatToolResponse(name, result),
             },
           ],
         };
@@ -246,7 +247,7 @@ async function start() {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
+              text: formatToolResponse(name, result),
             },
           ],
         };
@@ -258,7 +259,7 @@ async function start() {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
+              text: formatToolResponse(name, result),
             },
           ],
         };
@@ -270,7 +271,7 @@ async function start() {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
+              text: formatToolResponse(name, result),
             },
           ],
         };
