@@ -34,6 +34,51 @@
         "isDefault": true
       },
       "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Manual Test: Core MCP Tools",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test-client"],
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "Manual Test: Discovery MCP Tools",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test-discovery"],
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "Manual Test: Full MCP Tool Suite",
+      "type": "shell",
+      "command": "npm run build && npm run test-client && npm run test-discovery",
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "Manual Test: Run SQL Query (Prompt)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test-query"],
+      "options": {
+        "env": {
+          "SQL_QUERY": "${input:mcpSqlQuery}"
+        }
+      },
+      "dependsOn": "Build TypeScript",
+      "problemMatcher": [],
+      "group": "test"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "mcpSqlQuery",
+      "type": "promptString",
+      "description": "SQL query for query_database tool (SELECT only)",
+      "default": "SELECT USER AS current_user, SYSDATE AS current_date FROM DUAL"
     }
   ]
 }

@@ -101,6 +101,8 @@ Want to create your own MCP server for a different data source? This repository 
 - 📡 **stdio transport** - Communicates via standard input/output (no HTTP server needed)
 - ⚡ **Connection pooling** - Efficient Oracle connection management
 - 📊 **Schema introspection** - Query table and column information
+- 🔍 **Advanced schema discovery** - 5 specialized tools for discovering tables, relationships, and data patterns
+- 💾 **In-memory caching** - Fast repeated access with LRU cache (5-minute TTL)
 - 📝 **Audit logging** - All queries are logged with execution metrics
 - ⏱️ **Timeout protection** - Prevents long-running queries
 - 🛡️ **Result limits** - Configurable row limits to prevent memory issues
@@ -286,9 +288,11 @@ Edit `src/client.ts` to customize the test queries.
 
 ### Using with GitHub Copilot
 
-Once configured, the MCP server provides two tools to GitHub Copilot:
+Once configured, the MCP server provides seven tools to GitHub Copilot:
 
-### 1. `query_database`
+### Core Tools
+
+#### 1. `query_database`
 
 Execute read-only SQL queries:
 
@@ -310,17 +314,38 @@ Copilot: [calls query_database with SQL query]
 }
 ```
 
-### 2. `get_database_schema`
+#### 2. `get_database_schema`
 
-Get schema information:
-
-```
-User: "What columns are in the CUSTOMERS table?"
-Copilot: [calls get_database_schema with tableName="CUSTOMERS"]
-```
+Get schema information (legacy tool, use discovery tools for better results):
 
 **Parameters:**
 - `tableName` (optional): Specific table name, or omit to list all tables
+
+### Schema Discovery Tools
+
+The server includes 5 advanced discovery tools for comprehensive schema introspection:
+
+#### 3. `listTables`
+
+Get all accessible tables with optional row counts and metadata. [Learn more →](./docs/SCHEMA-DISCOVERY.md#1-listtables)
+
+#### 4. `describeTable`
+
+Get detailed column information and constraints for a table. [Learn more →](./docs/SCHEMA-DISCOVERY.md#2-describetable)
+
+#### 5. `getTableRelations`
+
+Discover foreign key relationships in JSON format. [Learn more →](./docs/SCHEMA-DISCOVERY.md#3-gettablerelations)
+
+#### 6. `getSampleValues`
+
+Get sample data from columns to understand formats. [Learn more →](./docs/SCHEMA-DISCOVERY.md#4-getsamplevalues)
+
+#### 7. `suggestRelatedTables`
+
+Find related tables by foreign keys, naming patterns, or shared columns. [Learn more →](./docs/SCHEMA-DISCOVERY.md#5-suggestrelatedtables)
+
+📖 **See [Schema Discovery Documentation](./docs/SCHEMA-DISCOVERY.md) for detailed examples and usage patterns.**
 
 ## Example Prompts for Copilot
 
@@ -458,6 +483,8 @@ For most use cases, Thin Mode is simpler and works great!
 ## Documentation
 
 📚 **Integration Guides:**
+- [Schema Discovery Guide](./docs/SCHEMA-DISCOVERY.md) - Advanced schema introspection tools ⭐ NEW
+- [Schema Discovery Examples](./docs/SCHEMA-DISCOVERY-EXAMPLES.md) - MCP message examples for discovery tools ⭐ NEW
 - [MCP Integration Guide](./docs/MCP-INTEGRATION.md) - Learn about MCP protocol, tools, and how it works
 - [VS Code Integration Guide](./docs/VSCODE-INTEGRATION.md) - Set up with GitHub Copilot (includes custom instructions)
 - [Claude Desktop Integration Guide](./docs/CLAUDE-INTEGRATION.md) - Set up with Claude Desktop
