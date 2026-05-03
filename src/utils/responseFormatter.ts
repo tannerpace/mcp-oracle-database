@@ -1,4 +1,5 @@
 import getConfig from '../config.js';
+import logger from './logger.js';
 
 const config = getConfig();
 
@@ -15,6 +16,12 @@ interface ResponseShape {
   [key: string]: unknown;
 }
 
+interface Remediation {
+  description: string;
+  envVars: Record<string, string>;
+  exampleValues: Record<string, string>;
+}
+
 interface TruncationSummary {
   maxResponseChars: number;
   maxRowsInResponse: number;
@@ -24,6 +31,8 @@ interface TruncationSummary {
   droppedRows: number;
   truncatedStringFields: number;
   compactedForTokenEfficiency: boolean;
+  dataLossWarning?: string;
+  remediation?: Remediation;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -85,16 +94,49 @@ function compactQueryData(
     rows: compactedRows,
   };
 
+  const droppedRows = Math.max(0, originalRows - compactedRows.length);
+
   const summary: TruncationSummary = {
     maxResponseChars: config.MCP_MAX_RESPONSE_CHARS,
     maxRowsInResponse: config.MCP_MAX_ROWS_IN_RESPONSE,
     maxStringLength: config.MCP_MAX_STRING_LENGTH,
     originalRows,
     returnedRows: compactedRows.length,
-    droppedRows: Math.max(0, originalRows - compactedRows.length),
+    droppedRows,
     truncatedStringFields,
     compactedForTokenEfficiency: true,
   };
+
+  if (droppedRows > 0 || truncatedStringFields > 0) {
+    summary.dataLossWarning = [
+      droppedRows > 0 ? `${droppedRows} row(s) were dropped (MCP_MAX_ROWS_IN_RESPONSE=${config.MCP_MAX_ROWS_IN_RESPONSE}).` : '',
+      truncatedStringFields > 0 ? `${truncatedStringFields} string field(s) were truncated (MCP_MAX_STRING_LENGTH=${config.MCP_MAX_STRING_LENGTH}).` : '',
+    ].filter(Boolean).join(' ');
+
+    summary.remediation = {
+      description: 'Adjust these environment variables to see more data. Restart the MCP server after changing them.',
+      envVars: {
+        MCP_MAX_ROWS_IN_RESPONSE: 'Controls max rows returned per tool call (current: ' + config.MCP_MAX_ROWS_IN_RESPONSE + ')',
+        MCP_MAX_STRING_LENGTH: 'Controls max characters per string field (current: ' + config.MCP_MAX_STRING_LENGTH + ')',
+        MCP_MAX_RESPONSE_CHARS: 'Hard cap on total response size in characters (current: ' + config.MCP_MAX_RESPONSE_CHARS + ')',
+        MAX_ROWS_PER_QUERY: 'Controls max rows fetched from Oracle (current: ' + config.MAX_ROWS_PER_QUERY + ')',
+      },
+      exampleValues: {
+        MCP_MAX_ROWS_IN_RESPONSE: '250',
+        MCP_MAX_STRING_LENGTH: '1000',
+        MCP_MAX_RESPONSE_CHARS: '32000',
+        MAX_ROWS_PER_QUERY: '500',
+      },
+    };
+
+    logger.warn('MCP response compacted due to token limits', {
+      tool: toolName,
+      originalRows,
+      returnedRows: compactedRows.length,
+      droppedRows,
+      truncatedStringFields,
+    });
+  }
 
   const nextResponse: ResponseShape = {
     ...response,
@@ -106,20 +148,38 @@ function compactQueryData(
   return { response: nextResponse, summary };
 }
 
-function buildSummaryPayload(toolName: string, response: ResponseShape, summary: TruncationSummary | null): ResponseShape {
+function buildSummaryPayload(toolName: string, response: ResponseShape, summary: TruncationSummary | null, overLimitChars: number): ResponseShape {
   const data = isRecord(response.data) ? response.data : undefined;
 
+  const remediation: Remediation = {
+    description: 'The serialized response exceeded MCP_MAX_RESPONSE_CHARS. Adjust the environment variables below and restart the MCP server to retrieve full results.',
+    envVars: {
+      MCP_MAX_RESPONSE_CHARS: `Hard cap on total response characters (current: ${config.MCP_MAX_RESPONSE_CHARS})`,
+      MCP_MAX_ROWS_IN_RESPONSE: `Max rows returned per tool call (current: ${config.MCP_MAX_ROWS_IN_RESPONSE})`,
+      MCP_MAX_STRING_LENGTH: `Max characters per string field (current: ${config.MCP_MAX_STRING_LENGTH})`,
+      MAX_ROWS_PER_QUERY: `Max rows Oracle fetches per query (current: ${config.MAX_ROWS_PER_QUERY})`,
+    },
+    exampleValues: {
+      MCP_MAX_RESPONSE_CHARS: String(config.MCP_MAX_RESPONSE_CHARS * 2),
+      MCP_MAX_ROWS_IN_RESPONSE: String(Math.max(10, Math.floor(config.MCP_MAX_ROWS_IN_RESPONSE / 2))),
+      MCP_MAX_STRING_LENGTH: String(Math.max(50, Math.floor(config.MCP_MAX_STRING_LENGTH / 2))),
+      MAX_ROWS_PER_QUERY: String(Math.max(10, Math.floor(config.MAX_ROWS_PER_QUERY / 2))),
+    },
+  };
+
   return {
-    success: response.success === true,
-    message: 'Response was summarized to stay within token budget. Narrow the query for full detail.',
+    success: false,
+    error: `Response for tool '${toolName}' exceeded MCP_MAX_RESPONSE_CHARS (${config.MCP_MAX_RESPONSE_CHARS}). Serialized size was approximately ${overLimitChars} characters. Full data was not returned.`,
     tool: toolName,
-    summary,
+    dataLoss: 'Some or all rows were omitted from this response. Use narrower queries or increase token limits to retrieve full results.',
+    remediation,
     dataSummary: {
       rowCount: typeof data?.rowCount === 'number' ? data.rowCount : undefined,
       columnCount: Array.isArray(data?.columns) ? data.columns.length : undefined,
       executionTime: typeof data?.executionTime === 'number' ? data.executionTime : undefined,
       columns: Array.isArray(data?.columns) ? data.columns : undefined,
     },
+    truncationDetails: summary,
   };
 }
 
@@ -132,14 +192,33 @@ export function formatToolResponse(toolName: string, result: unknown): string {
     return text;
   }
 
+  // Stage 1: halve the row count and retry
   if (isRecord(compacted.response.data) && Array.isArray(compacted.response.data.rows)) {
     const rows = compacted.response.data.rows;
-    const reducedRows = rows.slice(0, Math.max(1, Math.floor(rows.length / 2)));
+    const halvedCount = Math.max(1, Math.floor(rows.length / 2));
+    const reducedRows = rows.slice(0, halvedCount);
+    const droppedByHalving = rows.length - halvedCount;
+
+    logger.warn('MCP response over limit after compaction; halving row count', {
+      tool: toolName,
+      originalSerializedChars: text.length,
+      limit: config.MCP_MAX_RESPONSE_CHARS,
+      rowsBefore: rows.length,
+      rowsAfter: halvedCount,
+      droppedRows: droppedByHalving,
+      hint: 'Lower MCP_MAX_ROWS_IN_RESPONSE or MCP_MAX_STRING_LENGTH to avoid this.',
+    });
+
     const reducedPayload: ResponseShape = {
       ...compacted.response,
       data: {
         ...compacted.response.data,
         rows: reducedRows,
+      },
+      _halved: {
+        warning: `Row count was halved from ${rows.length} to ${halvedCount} because the response exceeded MCP_MAX_RESPONSE_CHARS (${config.MCP_MAX_RESPONSE_CHARS}).`,
+        droppedRows: droppedByHalving,
+        remediation: `Lower MCP_MAX_ROWS_IN_RESPONSE (current: ${config.MCP_MAX_ROWS_IN_RESPONSE}) or raise MCP_MAX_RESPONSE_CHARS (current: ${config.MCP_MAX_RESPONSE_CHARS}).`,
       },
     };
 
@@ -149,17 +228,21 @@ export function formatToolResponse(toolName: string, result: unknown): string {
     }
   }
 
-  const summarized = buildSummaryPayload(toolName, compacted.response, compacted.summary);
-  text = JSON.stringify(summarized);
+  // Stage 2: emit a structured error with full remediation guidance
+  const overLimitChars = text.length;
 
-  if (text.length <= config.MCP_MAX_RESPONSE_CHARS) {
-    return text;
-  }
-
-  return JSON.stringify({
-    success: false,
-    error: 'Tool response exceeded configured max size. Reduce query scope or lower maxRows.',
+  logger.error('MCP response exceeded max chars even after row reduction; returning structured error', {
     tool: toolName,
-    maxResponseChars: config.MCP_MAX_RESPONSE_CHARS,
+    serializedChars: overLimitChars,
+    limit: config.MCP_MAX_RESPONSE_CHARS,
+    currentConfig: {
+      MCP_MAX_RESPONSE_CHARS: config.MCP_MAX_RESPONSE_CHARS,
+      MCP_MAX_ROWS_IN_RESPONSE: config.MCP_MAX_ROWS_IN_RESPONSE,
+      MCP_MAX_STRING_LENGTH: config.MCP_MAX_STRING_LENGTH,
+      MAX_ROWS_PER_QUERY: config.MAX_ROWS_PER_QUERY,
+    },
   });
+
+  const summarized = buildSummaryPayload(toolName, compacted.response, compacted.summary, overLimitChars);
+  return JSON.stringify(summarized);
 }
