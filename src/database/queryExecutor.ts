@@ -8,7 +8,7 @@ const config = getConfig();
 
 const WRITE_LOCK_PATTERN = /\bFOR\s+UPDATE\b/i;
 
-function stripLeadingCommentsAndWhitespace(query: string): string {
+export function stripLeadingCommentsAndWhitespace(query: string): string {
   let remaining = query;
 
   while (true) {
@@ -33,7 +33,7 @@ function stripLeadingCommentsAndWhitespace(query: string): string {
   }
 }
 
-function ensureReadOnlyQuery(query: string): void {
+export function ensureReadOnlyQuery(query: string): void {
   if (!config.ENFORCE_READ_ONLY_QUERIES) {
     return;
   }

@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 dotenv.config();
 
-const configSchema = z.object({
+export const configSchema = z.object({
   ORACLE_CONNECTION_STRING: z.string().optional(),
   ORACLE_USER: z.string().optional(),
   ORACLE_PASSWORD: z.string().optional(),
