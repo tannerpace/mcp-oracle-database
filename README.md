@@ -459,7 +459,7 @@ mcp-oracle-database/
 2. **No Injection Protection** — The server trusts the LLM to generate valid SQL; the read-only user is the safety net
 3. **Query Limits** — Row count and timeout limits prevent resource exhaustion
 4. **Audit Logging** — All queries logged with timestamps for review
-5. **Local Use** — Designed for trusted local/private use; add authentication if exposing over a network
+5. **Local Use** — This server is designed to run right on your machine; It can run locally, and still access remote databases.
 
 ---
 
