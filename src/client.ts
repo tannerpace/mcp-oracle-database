@@ -1,6 +1,53 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
+interface ToolResultPayload {
+  success: boolean;
+  error?: string;
+  data?: {
+    rowCount?: number;
+    executionTime?: number;
+    rows?: Array<Record<string, unknown>>;
+  };
+}
+
+function parseToolPayload(rawResult: unknown): ToolResultPayload {
+  if (
+    !rawResult ||
+    typeof rawResult !== 'object' ||
+    !('content' in rawResult) ||
+    !Array.isArray((rawResult as { content: unknown }).content)
+  ) {
+    throw new Error('Invalid MCP tool response shape');
+  }
+
+  const content = (rawResult as { content: unknown[] }).content;
+  if (content.length === 0) {
+    throw new Error('MCP tool response has no content items');
+  }
+
+  const firstItem = content[0];
+  if (
+    !firstItem ||
+    typeof firstItem !== 'object' ||
+    !('text' in firstItem) ||
+    typeof (firstItem as { text?: unknown }).text !== 'string'
+  ) {
+    throw new Error('MCP tool response does not contain text content');
+  }
+
+  const parsed = JSON.parse((firstItem as { text: string }).text) as unknown;
+  if (!parsed || typeof parsed !== 'object' || !('success' in parsed)) {
+    throw new Error('Tool payload missing success field');
+  }
+
+  return parsed as ToolResultPayload;
+}
+
+function logToolFailure(testName: string, payload: ToolResultPayload): void {
+  console.error(`❌ ${testName} failed: ${payload.error || 'Unknown error'}`);
+}
+
 /**
  * Simple MCP client for testing the Oracle database MCP server
  */
@@ -30,7 +77,7 @@ async function main() {
   await client.connect(transport);
   console.log('✅ Connected to MCP server\n');
 
-  const results: any[] = [];
+  const results: Array<Record<string, unknown>> = [];
 
   try {
     // Test 1: List available tools
@@ -53,16 +100,28 @@ async function main() {
       name: 'get_database_schema',
       arguments: {},
     });
-    const schemaData = JSON.parse((schemaResult as any).content[0].text);
-    console.log(`Found ${schemaData.data.rowCount} tables`);
-    console.log(`Execution time: ${schemaData.data.executionTime}ms`);
-    results.push({
-      test: 'Get All Tables',
-      success: schemaData.success,
-      rowCount: schemaData.data.rowCount,
-      executionTime: schemaData.data.executionTime,
-      sampleTables: schemaData.data.rows.slice(0, 5),
-    });
+    const schemaData = parseToolPayload(schemaResult);
+    if (!schemaData.success || !schemaData.data) {
+      logToolFailure('Get All Tables', schemaData);
+      results.push({
+        test: 'Get All Tables',
+        success: false,
+        error: schemaData.error || 'Unknown error',
+      });
+    } else {
+      const rowCount = schemaData.data.rowCount ?? 0;
+      const executionTime = schemaData.data.executionTime ?? 0;
+      const rows = schemaData.data.rows ?? [];
+      console.log(`Found ${rowCount} tables`);
+      console.log(`Execution time: ${executionTime}ms`);
+      results.push({
+        test: 'Get All Tables',
+        success: true,
+        rowCount,
+        executionTime,
+        sampleTables: rows.slice(0, 5),
+      });
+    }
     console.log('\n');
 
     // Test 3: Query database version
@@ -74,14 +133,24 @@ async function main() {
         maxRows: 1,
       },
     });
-    const versionData = JSON.parse((versionResult as any).content[0].text);
-    console.log('Database version:', versionData.data.rows[0]);
-    results.push({
-      test: 'Query Database Version',
-      success: versionData.success,
-      data: versionData.data.rows[0],
-      executionTime: versionData.data.executionTime,
-    });
+    const versionData = parseToolPayload(versionResult);
+    if (!versionData.success || !versionData.data || !versionData.data.rows || versionData.data.rows.length === 0) {
+      logToolFailure('Query Database Version', versionData);
+      results.push({
+        test: 'Query Database Version',
+        success: false,
+        error: versionData.error || 'Unknown error',
+      });
+    } else {
+      const firstRow = versionData.data.rows[0];
+      console.log('Database version:', firstRow);
+      results.push({
+        test: 'Query Database Version',
+        success: true,
+        data: firstRow,
+        executionTime: versionData.data.executionTime ?? 0,
+      });
+    }
     console.log('\n');
 
     // Test 4: Query current user and date
@@ -93,15 +162,24 @@ async function main() {
         maxRows: 1,
       },
     });
-    const userDateData = JSON.parse((userDateResult as any).content[0].text);
-    console.log('Current user:', userDateData.data.rows[0].CURRENT_USER);
-    console.log('Current date:', userDateData.data.rows[0].CURRENT_DATE);
-    results.push({
-      test: 'Query Current User and Date',
-      success: userDateData.success,
-      data: userDateData.data.rows[0],
-      executionTime: userDateData.data.executionTime,
-    });
+    const userDateData = parseToolPayload(userDateResult);
+    if (!userDateData.success || !userDateData.data || !userDateData.data.rows || userDateData.data.rows.length === 0) {
+      logToolFailure('Query Current User and Date', userDateData);
+      results.push({
+        test: 'Query Current User and Date',
+        success: false,
+        error: userDateData.error || 'Unknown error',
+      });
+    } else {
+      const firstRow = userDateData.data.rows[0];
+      console.log('Current user/date row:', firstRow);
+      results.push({
+        test: 'Query Current User and Date',
+        success: true,
+        data: firstRow,
+        executionTime: userDateData.data.executionTime ?? 0,
+      });
+    }
     console.log('\n');
 
     // Test 5: Query tablespace information
@@ -115,18 +193,28 @@ async function main() {
         maxRows: 10,
       },
     });
-    const tablespaceData = JSON.parse((tablespaceResult as any).content[0].text);
-    console.log(`Found ${tablespaceData.data.rowCount} tablespaces`);
-    tablespaceData.data.rows.forEach((row: any) => {
-      console.log(`  - ${row.TABLESPACE_NAME}: ${row.STATUS} (${row.CONTENTS})`);
-    });
-    results.push({
-      test: 'Query Tablespaces',
-      success: tablespaceData.success,
-      rowCount: tablespaceData.data.rowCount,
-      data: tablespaceData.data.rows,
-      executionTime: tablespaceData.data.executionTime,
-    });
+    const tablespaceData = parseToolPayload(tablespaceResult);
+    if (!tablespaceData.success || !tablespaceData.data) {
+      logToolFailure('Query Tablespaces', tablespaceData);
+      results.push({
+        test: 'Query Tablespaces',
+        success: false,
+        error: tablespaceData.error || 'Unknown error',
+      });
+    } else {
+      const rows = tablespaceData.data.rows ?? [];
+      console.log(`Found ${tablespaceData.data.rowCount ?? rows.length} tablespaces`);
+      rows.forEach((row) => {
+        console.log('  -', row);
+      });
+      results.push({
+        test: 'Query Tablespaces',
+        success: true,
+        rowCount: tablespaceData.data.rowCount ?? rows.length,
+        data: rows,
+        executionTime: tablespaceData.data.executionTime ?? 0,
+      });
+    }
     console.log('\n');
 
     // Test 6: Get schema for HELP table
@@ -137,19 +225,34 @@ async function main() {
         tableName: 'HELP',
       },
     });
-    const helpSchemaData = JSON.parse((helpSchemaResult as any).content[0].text);
-    console.log(`Found ${helpSchemaData.data.rowCount} columns in HELP table`);
-    helpSchemaData.data.rows.forEach((row: any) => {
-      console.log(`  - ${row.COLUMN_NAME}: ${row.DATA_TYPE}(${row.DATA_LENGTH}) ${row.NULLABLE}`);
-    });
-    results.push({
-      test: 'Get Table Schema (HELP)',
-      success: helpSchemaData.success,
-      rowCount: helpSchemaData.data.rowCount,
-      columns: helpSchemaData.data.rows,
-      executionTime: helpSchemaData.data.executionTime,
-    });
+    const helpSchemaData = parseToolPayload(helpSchemaResult);
+    if (!helpSchemaData.success || !helpSchemaData.data) {
+      logToolFailure('Get Table Schema (HELP)', helpSchemaData);
+      results.push({
+        test: 'Get Table Schema (HELP)',
+        success: false,
+        error: helpSchemaData.error || 'Unknown error',
+      });
+    } else {
+      const rows = helpSchemaData.data.rows ?? [];
+      console.log(`Found ${helpSchemaData.data.rowCount ?? rows.length} columns in HELP table`);
+      rows.forEach((row) => {
+        console.log('  -', row);
+      });
+      results.push({
+        test: 'Get Table Schema (HELP)',
+        success: true,
+        rowCount: helpSchemaData.data.rowCount ?? rows.length,
+        columns: rows,
+        executionTime: helpSchemaData.data.executionTime ?? 0,
+      });
+    }
     console.log('\n');
+
+    const failedCount = results.filter((result) => result.success === false).length;
+    if (failedCount > 0) {
+      throw new Error(`${failedCount} client test(s) failed`);
+    }
 
     console.log('✅ All tests completed successfully!');
 
@@ -160,14 +263,8 @@ async function main() {
     console.error('❌ Error during MCP operations:', error);
     throw error;
   } finally {
-    // Close the connection
-    setTimeout(async () => {
-      await client.close();
-      console.log('\n✅ Client disconnected');
-
-      // Exit cleanly
-      process.exit(0);
-    }, 500);
+    await client.close();
+    console.log('\n✅ Client disconnected');
   }
 }
 

@@ -1,39 +1,243 @@
-# Database MCP Server
+# Oracle Database MCP Server
 
 A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs to execute read-only SQL queries against Oracle databases.
 
 [![npm version](https://badge.fury.io/js/mcp-oracle-database.svg)](https://www.npmjs.com/package/mcp-oracle-database)
-[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
+<a href="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database/badge" alt="Oracle Database Server MCP server" />
+</a>
+
+---
+
+## Table of Contents
+
+1. [macOS Setup (Apple Silicon — M1/M2/M3/M4)](#-macos-setup-apple-silicon--m1m2m3m4)
+2. [Installation](#-installation)
+3. [Configure VS Code](#-configure-vs-code)
+4. [Optional: Create a Read-Only User](#optional-create-a-read-only-user)
+5. [Features](#features)
+6. [Available Tools](#available-tools)
+7. [Configuration Reference](#configuration-reference)
+8. [Development](#development)
+9. [Security Considerations](#security-considerations)
+10. [Troubleshooting](#troubleshooting)
+11. [Documentation](#documentation)
+
+---
+
+## 🍎 macOS Setup (Apple Silicon — M1/M2/M3/M4)
+
+This is the recommended path for Mac users. We use **Colima** as the Docker runtime (lighter than Docker Desktop and works natively on Apple Silicon) and build the MCP server from source.
+
+### Step 1 — Install Prerequisites
+
+**Homebrew** (skip if already installed):
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+**Node.js v18+** via nvm (recommended):
+```bash
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Reload your shell config, then install Node
+source ~/.zshrc
+nvm install 20
+nvm use 20
+node --version    # should print v20.x.x
+```
+
+Or via Homebrew:
+```bash
+brew install node
+node --version
+```
+
+**Colima + Docker CLI**:
+```bash
+brew install colima docker
+```
+
+### Step 2 — Start Colima
+
+Colima is a lightweight container runtime for macOS — no Docker Desktop required.
+
+```bash
+# Start with enough resources for Oracle XE (needs at least 2GB RAM)
+colima start --cpu 2 --memory 4 --disk 30
+
+# Verify Docker is working
+docker ps
+```
+
+> If you already have Colima running with less memory, run `colima stop` then restart with the flags above.
+
+### Step 3 — Pull and Start Oracle XE
+
+Oracle's container registry requires a **free account** before you can pull the image.
+
+1. Create a free account at https://container-registry.oracle.com
+2. Log in, navigate to **Database → express**, and click **Accept License Agreement**
+3. Log in from your terminal:
+
+```bash
+docker login container-registry.oracle.com
+# Enter your Oracle account email and password when prompted
+```
+
+4. Pull and run Oracle XE 21c:
+
+```bash
+docker run -d \
+  --name oracle-xe \
+  -p 1521:1521 \
+  -p 5500:5500 \
+  -e ORACLE_PWD=OraclePwd123 \
+  container-registry.oracle.com/database/express:latest
+```
+
+5. Wait for it to be ready (takes 60–90 seconds on first start):
+
+```bash
+# Poll health status — wait for "healthy"
+watch -n 5 'docker inspect --format="{{.State.Health.Status}}" oracle-xe'
+
+# Or tail the logs directly
+docker logs -f oracle-xe
+# Look for: DATABASE IS READY TO USE!
+```
+
+Your database is now available at:
+- **Connection string:** `localhost:1521/XE`
+- **SYSTEM password:** `OraclePwd123`
+- **Web UI (EM Express):** http://localhost:5500/em
+
+> **Service name note:** Oracle XE 21c has two service names:
+> - `XE` — the container database (CDB), used with the SYSTEM user
+> - `XEPDB1` — the pluggable database (PDB), used for regular application users
+
+To start and stop the database later:
+```bash
+docker start oracle-xe
+docker stop oracle-xe
+```
+
+### Step 4 — Clone and Build the MCP Server
+
+```bash
+git clone https://github.com/tannerpace/mcp-oracle-database.git
+cd mcp-oracle-database
+npm install
+npm run build
+```
+
+### Step 5 — Configure Environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` for local Oracle XE (good for trying it out):
+
+```env
+ORACLE_CONNECTION_STRING=localhost:1521/XE
+ORACLE_USER=system
+ORACLE_PASSWORD=OraclePwd123
+```
+
+For production use, create a dedicated read-only user first — see [Create a Read-Only User](#optional-create-a-read-only-user).
+
+### Step 6 — Test the Server
+
+```bash
+# Core tests: connects to Oracle, queries schema and version
+npm run test-client
+
+# Schema discovery tool tests
+npm run test-discovery
+```
+
+Expected output:
+```
+✅ All tests completed successfully!
+
+📊 Test Summary:
+1. List Tools: ✅
+2. List Tables (fast): ✅
+3. List Tables (with counts): ✅
+4. Describe Table: ✅
+5. Get Table Relations: ✅
+6. Get Sample Values: ✅
+7. Suggest Related Tables: ✅
+8. Cache Test: ✅
+```
+
+### Step 7 — Connect VS Code
+
+See [Configure VS Code](#-configure-vs-code) below.
+
+---
 
 ## 📦 Installation
 
-### From npm (Recommended)
+### Build from Source (Recommended)
+
+Gives you the latest code and lets you run the test suite to verify everything works before connecting to Copilot.
+
+```bash
+git clone https://github.com/tannerpace/mcp-oracle-database.git
+cd mcp-oracle-database
+npm install
+npm run build
+```
+
+### Install from npm
+
+If you just want the server binary without cloning the source:
 
 ```bash
 npm install -g mcp-oracle-database
 ```
 
-Or install locally in your project:
+---
 
-```bash
-npm install mcp-oracle-database
+## 🔌 Configure VS Code
+
+### Option A — From Source (recommended)
+
+Create `.vscode/mcp.json` in your VS Code workspace (or add to your global MCP config):
+
+```json
+{
+  "servers": {
+    "oracleDatabase": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-oracle-database/dist/server.js"],
+      "env": {
+        "ORACLE_CONNECTION_STRING": "localhost:1521/XE",
+        "ORACLE_USER": "system",
+        "ORACLE_PASSWORD": "OraclePwd123",
+        "ORACLE_POOL_MIN": "2",
+        "ORACLE_POOL_MAX": "10",
+        "QUERY_TIMEOUT_MS": "30000",
+        "MAX_ROWS_PER_QUERY": "1000",
+        "ENFORCE_READ_ONLY_QUERIES": "true",
+        "MCP_MAX_RESPONSE_CHARS": "50000",
+        "MCP_MAX_ROWS_IN_RESPONSE": "200",
+        "MCP_MAX_STRING_LENGTH": "500"
+      }
+    }
+  }
+}
 ```
 
-### From Source
+Replace `/absolute/path/to/mcp-oracle-database` with the real path on your machine (e.g. `/Users/yourname/GITHUB/mcp-oracle-database`).
 
-```bash
-git clone https://github.com/tannerpace/my-mcp.git
-cd my-mcp
-npm install && npm run build
-```
-
-## �🚀 Quick Start with VS Code
-
-### If installed via npm:
-
-1. **Configure VS Code MCP settings**
-
-Create `.vscode/mcp.json`:
+### Option B — From npm global install
 
 ```json
 {
@@ -42,160 +246,158 @@ Create `.vscode/mcp.json`:
       "type": "stdio",
       "command": "mcp-database-server",
       "env": {
-        "ORACLE_CONNECTION_STRING": "localhost:1521/XEPDB1",
-        "ORACLE_USER": "your_readonly_user",
+        "ORACLE_CONNECTION_STRING": "localhost:1521/XE",
+        "ORACLE_USER": "your_user",
         "ORACLE_PASSWORD": "your_password",
         "ORACLE_POOL_MIN": "2",
         "ORACLE_POOL_MAX": "10",
         "QUERY_TIMEOUT_MS": "30000",
-        "MAX_ROWS_PER_QUERY": "1000"
+        "MAX_ROWS_PER_QUERY": "1000",
+        "ENFORCE_READ_ONLY_QUERIES": "true",
+        "MCP_MAX_RESPONSE_CHARS": "50000",
+        "MCP_MAX_ROWS_IN_RESPONSE": "200",
+        "MCP_MAX_STRING_LENGTH": "500"
       }
     }
   }
 }
 ```
 
-2. **Reload VS Code and ask Copilot:**
+After saving the config, reload VS Code and open a Copilot chat in **Agent mode**. Try:
 ```
 "What tables are in the database?"
+"Describe the HELP table"
+"Show me 5 rows from the HELP table"
 ```
 
-### If running from source:
+---
 
-```bash
-# 1. Build the server
-npm install && npm run build
+## Optional: Create a Read-Only User
 
-# 2. Configure VS Code
-cp .vscode/mcp.json.example .vscode/mcp.json
+Using `SYSTEM` is fine for local testing, but for any real database create a dedicated read-only user.
 
-# 3. Start Oracle database (if using Docker)
-docker start oracle-xe
+Connect to Oracle (e.g. via `sqlplus` or a GUI like DBeaver):
 
-# 4. Reload VS Code and ask Copilot:
-"What tables are in the database?"
+```sql
+-- For Oracle XE local Docker, connect with:
+-- sqlplus system/OraclePwd123@localhost:1521/XEPDB1
+
+CREATE USER readonly_user IDENTIFIED BY secure_password;
+GRANT CREATE SESSION TO readonly_user;
+GRANT SELECT ANY TABLE TO readonly_user;
+
+-- Or restrict to specific tables:
+-- GRANT SELECT ON myschema.orders TO readonly_user;
+-- GRANT SELECT ON myschema.customers TO readonly_user;
 ```
 
-See [Quick Start Guide](./docs/QUICK-START-VSCODE.md) for detailed setup.
+Then update your `.env` or MCP config:
+```env
+ORACLE_CONNECTION_STRING=localhost:1521/XEPDB1
+ORACLE_USER=readonly_user
+ORACLE_PASSWORD=secure_password
+```
+
+---
 
 ## Features
 
-- 🔒 **Read-only access** - Uses a dedicated read-only database user for security
-- 📡 **stdio transport** - Communicates via standard input/output (no HTTP server needed)
-- ⚡ **Connection pooling** - Efficient Oracle connection management
-- 📊 **Schema introspection** - Query table and column information
-- 📝 **Audit logging** - All queries are logged with execution metrics
-- ⏱️ **Timeout protection** - Prevents long-running queries
-- 🛡️ **Result limits** - Configurable row limits to prevent memory issues
+- 🔒 **Read-only access** — Uses a dedicated read-only database user for security
+- 📡 **stdio transport** — Communicates via standard input/output (no HTTP server needed)
+- ⚡ **Connection pooling** — Efficient Oracle connection management
+- 📊 **Schema introspection** — Query table and column information
+- 🔍 **Advanced schema discovery** — 5 specialized tools for discovering tables, relationships, and data patterns
+- 💾 **In-memory caching** — Fast repeated access with LRU cache (5-minute TTL)
+- 📝 **Audit logging** — All queries logged with execution metrics
+- ⏱️ **Timeout protection** — Prevents long-running queries
+- 🛡️ **Result limits** — Configurable row limits to prevent memory issues
+- 🍎 **No Oracle Client needed** — Uses node-oracledb Thin Mode (pure JS, works on Apple Silicon)
 
 ## Architecture
 
 ```
-GitHub Copilot
-      ↓ (MCP Protocol)
+GitHub Copilot / LLM
+        ↓ (MCP Protocol)
   MCP Client (spawns process)
-      ↓ (JSON-RPC over stdio)
-  MCP Server (Node.js)
-      ↓ (oracledb)
-  Oracle DB (read-only user)
+        ↓ (JSON-RPC over stdio)
+    MCP Server (Node.js)
+        ↓ (node-oracledb Thin Mode)
+  Oracle Database (read-only user)
 ```
 
-## Prerequisites
+---
 
-1. **Node.js** v18 or higher
-2. **Oracle Database** with a read-only user created
-   - Running locally (Docker recommended)
-   - Or accessible remote instance
+## Available Tools
 
-**Note:** This project uses the node-oracledb package in **Thin Mode**, which means **no Oracle Instant Client installation is required**! The pure JavaScript driver connects directly to Oracle Database, just like Python's oracledb library.
+### Core Tools
 
-### Optional: Running Oracle Database Locally with Docker
+#### `query_database`
+Execute read-only SQL SELECT queries.
 
-If you need a local Oracle database for development:
-
-**macOS (using Colima):**
-```bash
-# Start Colima (Docker runtime for macOS)
-colima start
-
-# Pull and run Oracle XE container
-docker run -d \
-  --name oracle-xe \
-  -p 1521:1521 \
-  -p 5500:5500 \
-  -e ORACLE_PWD=OraclePwd123 \
-  container-registry.oracle.com/database/express:latest
-
-# Wait for database to be ready (takes 1-2 minutes)
-docker logs -f oracle-xe
-
-# Start/stop the database later
-docker start oracle-xe
-docker stop oracle-xe
+```json
+{
+  "query": "SELECT table_name FROM user_tables FETCH FIRST 10 ROWS ONLY",
+  "maxRows": 10
+}
 ```
 
-**Linux/Other:**
-```bash
-# Same docker commands as above, just ensure Docker is running
-docker ps
+#### `get_database_schema`
+Get table list or column details for a specific table.
+
+```json
+{ "tableName": "ORDERS" }
 ```
 
-The database will be available at:
-- **Connection:** `localhost:1521/XEPDB1`
-- **SYS password:** `OraclePwd123`
-- **Web UI:** http://localhost:5500/em
+### Schema Discovery Tools
 
-## Setup
+Five specialized tools for comprehensive schema introspection:
 
-### 1. Clone and Install Dependencies
+| Tool | Purpose | Cached |
+|------|---------|--------|
+| `listTables` | All accessible tables with metadata & optional row counts | ✅ |
+| `describeTable` | Column types, constraints, primary/foreign keys | ✅ |
+| `getTableRelations` | Foreign key relationships in JSON | ✅ |
+| `getSampleValues` | Sample values to understand data formats | ❌ |
+| `suggestRelatedTables` | Find related tables by FK, naming, shared columns | ❌ |
 
-```bash
-git clone <repository-url>
-cd my-mcp
-npm install
+📖 See [Schema Discovery Documentation](./docs/SCHEMA-DISCOVERY.md) for full details and examples.
+
+### Example Copilot Prompts
+
+```
+"List all tables in the database"
+"Describe the ORDERS table and its relationships"
+"How many active users are there?"
+"What are the top 5 products by sales this month?"
+"Show me recent transactions for customer ID 12345"
 ```
 
-### 2. Create Read-Only Database User
+---
 
-Connect to your Oracle database as a DBA and run:
+## Configuration Reference
 
-```sql
--- Create read-only user
-CREATE USER readonly_user IDENTIFIED BY secure_password;
-
--- Grant connect and read-only privileges
-GRANT CONNECT TO readonly_user;
-GRANT SELECT ANY TABLE TO readonly_user;
-
--- Or grant access to specific tables only:
-GRANT SELECT ON schema.table1 TO readonly_user;
-GRANT SELECT ON schema.table2 TO readonly_user;
-```
-
-### 3. Configure Environment Variables
-
-Copy the example environment file:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and set your Oracle connection details:
+All settings can go in `.env` or as `env` keys in your VS Code MCP config.
 
 ```env
-# Oracle Database Connection (READ-ONLY USER)
-ORACLE_CONNECTION_STRING=hostname:1521/servicename
-ORACLE_USER=readonly_user
-ORACLE_PASSWORD=secure_password
+# Oracle Database Connection
+ORACLE_CONNECTION_STRING=localhost:1521/XE    # host:port/service
+ORACLE_USER=system
+ORACLE_PASSWORD=OraclePwd123
 
-# Connection Pool Settings
+# Connection Pool
 ORACLE_POOL_MIN=2
 ORACLE_POOL_MAX=10
 
-# Query Settings
-QUERY_TIMEOUT_MS=30000
-MAX_ROWS_PER_QUERY=1000
-MAX_QUERY_LENGTH=50000
+# Query Safety
+QUERY_TIMEOUT_MS=30000           # max query time in ms
+MAX_ROWS_PER_QUERY=1000          # max rows Oracle will fetch
+MAX_QUERY_LENGTH=50000           # max SQL length in chars
+ENFORCE_READ_ONLY_QUERIES=true   # reject non-SELECT statements
+
+# MCP Response Limits
+MCP_MAX_RESPONSE_CHARS=50000     # hard cap on total response size
+MCP_MAX_ROWS_IN_RESPONSE=200     # max rows per tool call response
+MCP_MAX_STRING_LENGTH=500        # max chars per string field
 
 # Logging
 LOG_LEVEL=info
@@ -205,264 +407,173 @@ LOG_DIR=./logs
 NODE_ENV=development
 ```
 
-### 4. Build the Server
+> **Large schemas:** If your database has 500+ tables, raise `MCP_MAX_RESPONSE_CHARS` to `100000`.
 
-```bash
-npm run build
-```
-
-### 5. Configure GitHub Copilot / MCP Client
-
-Create or update your MCP client configuration file:
-
-**VS Code** (`cline_mcp_config.json` or similar):
-```json
-{
-  "mcpServers": {
-    "oracle-db": {
-      "command": "node",
-      "args": ["/absolute/path/to/my-mcp/dist/server.js"],
-      "env": {
-        "ORACLE_CONNECTION_STRING": "hostname:1521/servicename",
-        "ORACLE_USER": "readonly_user",
-        "ORACLE_PASSWORD": "secure_password"
-      }
-    }
-  }
-}
-```
-
-Or use environment variables from your shell:
-```json
-{
-  "mcpServers": {
-    "oracle-db": {
-      "command": "node",
-      "args": ["/absolute/path/to/my-mcp/dist/server.js"]
-    }
-  }
-}
-```
-
-## Usage
-
-Once configured, the MCP server provides two tools to GitHub Copilot:
-
-### Testing with the Built-in Client
-
-Before integrating with Copilot, you can test the server locally:
-
-```bash
-# Make sure you have .env configured with valid Oracle credentials
-npm run build
-npm run test-client
-```
-
-This will:
-1. Start the MCP server
-2. Connect to it via the test client
-3. List available tools
-4. Get database schema (list all tables)
-5. Disconnect and shut down
-
-Edit `src/client.ts` to customize the test queries.
-
-### Using with GitHub Copilot
-
-Once configured, the MCP server provides two tools to GitHub Copilot:
-
-### 1. `query_database`
-
-Execute read-only SQL queries:
-
-```
-User: "Show me the top 10 customers by revenue"
-Copilot: [calls query_database with SQL query]
-```
-
-**Parameters:**
-- `query` (required): SQL SELECT statement
-- `maxRows` (optional): Maximum rows to return
-- `timeout` (optional): Query timeout in milliseconds
-
-**Example:**
-```json
-{
-  "query": "SELECT customer_name, SUM(revenue) as total FROM customers GROUP BY customer_name ORDER BY total DESC",
-  "maxRows": 10
-}
-```
-
-### 2. `get_database_schema`
-
-Get schema information:
-
-```
-User: "What columns are in the CUSTOMERS table?"
-Copilot: [calls get_database_schema with tableName="CUSTOMERS"]
-```
-
-**Parameters:**
-- `tableName` (optional): Specific table name, or omit to list all tables
-
-## Example Prompts for Copilot
-
-- "List all tables in the database"
-- "Show me the schema of the ORDERS table"
-- "How many active users do we have?"
-- "What are the top 5 products by sales this month?"
-- "Show me recent transactions for customer ID 12345"
+---
 
 ## Development
-
-### Project Structure
-
-```
-my-mcp/
-├── src/
-│   ├── server.ts              # Main MCP server entry point
-│   ├── client.ts              # Test client for local testing
-│   ├── config.ts              # Configuration with Zod validation
-│   ├── database/
-│   │   ├── types.ts           # TypeScript types
-│   │   ├── oracleConnection.ts # Connection pool manager
-│   │   └── queryExecutor.ts   # Query execution logic
-│   ├── tools/
-│   │   ├── queryDatabase.ts   # query_database tool
-│   │   └── getSchema.ts       # get_database_schema tool
-│   └── logging/
-│       └── logger.ts          # Winston-based logging
-├── dist/                      # Compiled JavaScript (generated)
-├── .env                       # Environment variables (git ignored)
-├── .env.example               # Environment template
-└── package.json
-```
 
 ### Scripts
 
 ```bash
-npm run build       # Compile TypeScript
-npm run dev         # Watch mode compilation
-npm run clean       # Remove dist folder
-npm run typecheck   # Type check without compiling
-npm start           # Run the server (after building)
-npm run test-client # Run test client to verify server works
+npm run build          # Compile TypeScript → dist/
+npm run dev            # Watch mode compilation
+npm run clean          # Remove dist/
+npm run typecheck      # Type-check without compiling
+npm start              # Start MCP server (requires build first)
+npm run test-client    # Core tool tests against live Oracle DB
+npm run test-discovery # Schema discovery tool tests
 ```
 
-### Logging
+### Project Structure
 
-All queries and events are logged in JSON format. Logs go to stdout/stderr:
-
-```json
-{
-  "level": "info",
-  "message": "Query executed successfully",
-  "timestamp": "2025-10-24T10:30:00.000Z",
-  "audit": true,
-  "query": "SELECT * FROM customers WHERE...",
-  "rowCount": 42,
-  "executionTime": 156
-}
+```
+mcp-oracle-database/
+├── src/
+│   ├── server.ts               # MCP server entry point
+│   ├── client.ts               # Core test client
+│   ├── test-discovery.ts       # Discovery tools test client
+│   ├── config.ts               # Zod-validated configuration
+│   ├── database/
+│   │   ├── oracleConnection.ts # Connection pool manager
+│   │   ├── queryExecutor.ts    # Query execution + safety checks
+│   │   └── types.ts
+│   ├── tools/
+│   │   ├── queryDatabase.ts    # query_database tool
+│   │   ├── getSchema.ts        # get_database_schema tool
+│   │   └── discovery/          # 5 schema discovery tools + cache
+│   └── utils/
+│       ├── logger.ts           # Lightweight file + console logger
+│       └── responseFormatter.ts # MCP response size management
+├── dist/                       # Compiled output (git-ignored)
+├── .env                        # Your credentials (git-ignored)
+├── .env.example                # Template
+└── package.json
 ```
 
-Set `LOG_LEVEL=debug` in `.env` for more verbose logging.
+---
 
 ## Security Considerations
 
-1. **Read-Only User** - Database user has only SELECT privileges
-2. **Local Client** - Designed for trusted local use only
-3. **No Injection Protection** - Trust the LLM to generate valid queries
-4. **Query Limits** - Row count and timeout limits prevent resource exhaustion
-5. **Audit Logging** - All queries logged for review
+1. **Read-Only User** — Database user should have only SELECT privileges in production
+2. **No Injection Protection** — The server trusts the LLM to generate valid SQL; the read-only user is the safety net
+3. **Query Limits** — Row count and timeout limits prevent resource exhaustion
+4. **Audit Logging** — All queries logged with timestamps for review
+5. **Local Use** — This server is designed to run right on your machine; It can run locally, and still access remote databases.
+
+---
 
 ## Troubleshooting
 
-### Docker/Colima Issues (macOS)
+### Colima not running (macOS)
 
-**Docker not running:**
 ```bash
-# Check if Colima is running
 colima status
-
-# Start Colima if needed
-colima start
-
-# Verify Docker works
-docker ps
+colima start --cpu 2 --memory 4   # Oracle needs at least 2GB RAM
+docker ps                          # verify Docker is available
 ```
 
-**Database won't start:**
-```bash
-# Check container status
-docker ps -a | grep oracle
+### Oracle container issues
 
-# View logs
+```bash
+# Check if container exists
+docker ps -a | grep oracle-xe
+
+# View startup logs
 docker logs oracle-xe
 
-# Restart if needed
-docker restart oracle-xe
+# Already exists but stopped — just start it
+docker start oracle-xe
+
+# Check health status
+docker inspect --format='{{.State.Health.Status}}' oracle-xe
+# Wait for: healthy
 ```
 
-### Connection Failed
+### Connection failed
 
 ```
 Error: ORA-12545: Connect failed because target host or object does not exist
 ```
 
-**Solutions:**
-- Check your `ORACLE_CONNECTION_STRING` format: `hostname:port/servicename`
-- For local Docker: use `localhost:1521/XEPDB1`
-- Verify database is running: `docker ps | grep oracle`
+- Is Oracle running? `docker ps | grep oracle-xe`
+- Check the port is mapped: `docker ps` should show `0.0.0.0:1521->1521/tcp`
+- Try `localhost:1521/XE` for SYSTEM user, `localhost:1521/XEPDB1` for other users
 
-### Permission Denied
+### Wrong service name
+
+| Service | Use for |
+|---------|---------|
+| `localhost:1521/XE` | SYSTEM user, DBA operations |
+| `localhost:1521/XEPDB1` | Regular application users |
+
+### Permission denied
 
 ```
 Error: ORA-00942: table or view does not exist
 ```
 
-**Solution:** Grant SELECT privileges to your read-only user on the required tables.
+Grant SELECT to your user:
+```sql
+GRANT SELECT ANY TABLE TO your_user;
+```
 
-### Database Not Ready
+### Oracle container registry login required
 
-If the test client fails immediately after starting the database:
-- Wait 1-2 minutes for Oracle to fully initialize
-- Check health status: `docker ps` should show `(healthy)`
-- Watch startup logs: `docker logs -f oracle-xe`
+```
+Error: unauthorized: authentication required
+```
 
-### Thin Mode vs Thick Mode
+1. Create a free account at https://container-registry.oracle.com
+2. Accept the license for **Database → express**
+3. Run `docker login container-registry.oracle.com`
 
-This project uses **Thin Mode** (pure JavaScript, no Oracle Client needed). If you encounter issues and want to use Thick Mode:
+### Response too large
 
-1. Install Oracle Instant Client
-2. Add to your code: `oracledb.initOracleClient()` before creating the pool
+```
+Response for tool 'listTables' exceeded MCP_MAX_RESPONSE_CHARS
+```
 
-For most use cases, Thin Mode is simpler and works great!
+Raise the limit in `.env` or your VS Code MCP config:
+```env
+MCP_MAX_RESPONSE_CHARS=100000
+```
+
+### Thin Mode note
+
+This project uses node-oracledb **Thin Mode** — a pure JavaScript driver that requires no Oracle Instant Client. It works on all platforms including Apple Silicon Macs.
+
+---
 
 ## Documentation
 
 📚 **Integration Guides:**
-- [MCP Integration Guide](./docs/MCP-INTEGRATION.md) - Learn about MCP protocol, tools, and how it works
-- [VS Code Integration Guide](./docs/VSCODE-INTEGRATION.md) - Set up with GitHub Copilot (includes custom instructions)
-- [Claude Desktop Integration Guide](./docs/CLAUDE-INTEGRATION.md) - Set up with Claude Desktop
-- [Quick Start Guide](./docs/QUICK-START-VSCODE.md) - Get started with VS Code in 3 steps ⚡
-- [VS Code Agent Mode Plan](./docs/VSCODE-AGENT-MODE-PLAN.md) - Implementation details and troubleshooting
+- [Schema Discovery Guide](./docs/SCHEMA-DISCOVERY.md) — Advanced schema introspection tools
+- [Schema Discovery Quick Reference](./docs/SCHEMA-DISCOVERY-QUICKREF.md) — Cheat sheet for all discovery tools
+- [Schema Discovery Examples](./docs/SCHEMA-DISCOVERY-EXAMPLES.md) — MCP message examples
+- [VS Code Integration Guide](./docs/VSCODE-INTEGRATION.md) — Set up with GitHub Copilot
+- [Claude Desktop Integration Guide](./docs/CLAUDE-INTEGRATION.md) — Set up with Claude Desktop
+- [MCP Integration Guide](./docs/MCP-INTEGRATION.md) — MCP protocol deep dive
+- [Architecture Overview](./docs/ARCHITECTURE.md) — System architecture diagram
+- [Logging Configuration](./docs/LOGGING.md) — Logging setup and configuration
 
-🔍 **Architecture & Code Quality:**
-- [**Code Review**](./docs/CODE-REVIEW.md) - Comprehensive architecture analysis, security review, and improvement recommendations
-- [**Improvement Roadmap**](./docs/IMPROVEMENT-ROADMAP.md) - Prioritized action items and implementation timeline
+🏗️ **Build Your Own MCP Server:**
+- [Quick Start Generator](./docs/QUICK-START-GENERATOR.md) — ⚡ 5-minute guide with copy-paste prompts
+- [Generator Examples](./docs/MCP-GENERATOR-EXAMPLES.md) — Ready-to-use prompts for PostgreSQL, MongoDB, Slack, and more
+- [MCP Project Generator Prompt](./docs/MCP-PROJECT-GENERATOR-PROMPT.md) — Comprehensive guide
 
-📊 **Test Results:**
-- [Test Results](./test-results.md) - Comprehensive test results with example queries
+📦 **Publishing:**
+- [NPM Republish Plan](./docs/NPM-REPUBLISH-PLAN.md) — Steps to publish or update the npm package
 
 📝 **Custom Instructions:**
-- [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) - Project-wide Copilot instructions
-- [`.github/instructions/`](./.github/instructions/) - Language-specific coding guidelines
+- [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) — Project-wide Copilot instructions
+- [`.github/instructions/`](./.github/instructions/) — Language-specific coding guidelines
 
-## License
+---
 
-ISC
+> Oracle is a registered trademark of Oracle Corporation.
+> This project is not affiliated with, endorsed by, or sponsored by Oracle Corporation.
 
 ## Contributing
 
 Contributions welcome! Please open an issue or pull request.
-

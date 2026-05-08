@@ -7,10 +7,23 @@ import {
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
 import getConfig from './config.js';
-import { closePool } from './database/oracleConnection.js';
-import logger from './utils/logger.js';
+import { closePool, getOrCreatePool } from './database/oracleConnection.js';
+import {
+  describeTable,
+  DescribeTableSchema,
+  getSampleValues,
+  GetSampleValuesSchema,
+  getTableRelations,
+  GetTableRelationsSchema,
+  listTables,
+  ListTablesSchema,
+  suggestRelatedTables,
+  SuggestRelatedTablesSchema,
+} from './tools/discovery/index.js';
 import { getDatabaseSchema, GetSchemaSchema } from './tools/getSchema.js';
 import { queryDatabase, QueryDatabaseSchema } from './tools/queryDatabase.js';
+import logger from './utils/logger.js';
+import { formatToolResponse } from './utils/responseFormatter.js';
 
 const config = getConfig();
 
@@ -72,6 +85,97 @@ async function start() {
         },
       },
     },
+    {
+      name: 'listTables',
+      description:
+        'Get a summary of all accessible tables with optional row counts and modification timestamps. Includes table comments for semantic hints. Use this before querying to discover available tables.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          includeRowCounts: {
+            type: 'boolean',
+            description: 'Whether to include approximate row counts (slower but more informative)',
+          },
+        },
+      },
+    },
+    {
+      name: 'describeTable',
+      description:
+        'Get detailed column-level metadata for a specific table including data types, nullable constraints, default values, and column comments. Also returns table constraints like primary keys, foreign keys, and unique constraints.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          tableName: {
+            type: 'string',
+            description: 'Name of the table to describe',
+          },
+          includeConstraints: {
+            type: 'boolean',
+            description: 'Whether to include constraint information (default: true)',
+          },
+        },
+        required: ['tableName'],
+      },
+    },
+    {
+      name: 'getTableRelations',
+      description:
+        'Get foreign key relationships for a table in an easily parseable JSON format. Returns both outgoing foreign keys (to other tables) and incoming references (from other tables). Helpful for understanding table relationships before writing JOIN queries.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          tableName: {
+            type: 'string',
+            description: 'Name of the table to get relationships for',
+          },
+        },
+        required: ['tableName'],
+      },
+    },
+    {
+      name: 'getSampleValues',
+      description:
+        'Get sample values from table columns to understand data patterns and formats. Includes distinct counts and null counts. SAFETY: Strictly limited to max 10 rows per column to prevent resource exhaustion.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          tableName: {
+            type: 'string',
+            description: 'Name of the table to get sample values from',
+          },
+          columnNames: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Optional array of specific column names to sample (if omitted, samples all columns)',
+          },
+          sampleSize: {
+            type: 'number',
+            description: 'Number of sample rows to retrieve per column (1-10, default: 3)',
+          },
+        },
+        required: ['tableName'],
+      },
+    },
+    {
+      name: 'suggestRelatedTables',
+      description:
+        'Suggest tables that may be related to the given table based on foreign keys, naming patterns, or shared columns. Returns suggestions with confidence scores and relationship descriptions. Useful for discovering relevant tables when building complex queries.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          tableName: {
+            type: 'string',
+            description: 'Name of the table to find related tables for',
+          },
+          maxSuggestions: {
+            type: 'number',
+            description: 'Maximum number of suggestions to return (1-20, default: 10)',
+          },
+        },
+        required: ['tableName'],
+      },
+    },
   ];
 
   // Handle tools/list request
@@ -95,7 +199,7 @@ async function start() {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
+              text: formatToolResponse(name, result),
             },
           ],
         };
@@ -107,7 +211,67 @@ async function start() {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
+              text: formatToolResponse(name, result),
+            },
+          ],
+        };
+      } else if (name === 'listTables') {
+        const validated = ListTablesSchema.parse(args || {});
+        const result = await listTables(validated);
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: formatToolResponse(name, result),
+            },
+          ],
+        };
+      } else if (name === 'describeTable') {
+        const validated = DescribeTableSchema.parse(args);
+        const result = await describeTable(validated);
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: formatToolResponse(name, result),
+            },
+          ],
+        };
+      } else if (name === 'getTableRelations') {
+        const validated = GetTableRelationsSchema.parse(args);
+        const result = await getTableRelations(validated);
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: formatToolResponse(name, result),
+            },
+          ],
+        };
+      } else if (name === 'getSampleValues') {
+        const validated = GetSampleValuesSchema.parse(args);
+        const result = await getSampleValues(validated);
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: formatToolResponse(name, result),
+            },
+          ],
+        };
+      } else if (name === 'suggestRelatedTables') {
+        const validated = SuggestRelatedTablesSchema.parse(args);
+        const result = await suggestRelatedTables(validated);
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: formatToolResponse(name, result),
             },
           ],
         };
@@ -127,6 +291,15 @@ async function start() {
       };
     }
   });
+
+  // Try to establish a DB connection pool at startup for clearer logs
+  try {
+    logger.info('Attempting to connect to Oracle database (startup warm-up)');
+    await getOrCreatePool();
+    logger.info('Connected to Oracle database (pool ready)');
+  } catch (err: any) {
+    logger.error('Could not connect to Oracle database at startup', { error: err?.message ?? err });
+  }
 
   // Create stdio transport and connect
   const transport = new StdioServerTransport();
