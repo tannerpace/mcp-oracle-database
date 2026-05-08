@@ -13,7 +13,7 @@ const configSchema = z.object({
   MAX_ROWS_PER_QUERY: z.coerce.number().int().min(1).default(1000),
   MAX_QUERY_LENGTH: z.coerce.number().int().min(1).default(50000),
   ENFORCE_READ_ONLY_QUERIES: z.coerce.boolean().default(true),
-  MCP_MAX_RESPONSE_CHARS: z.coerce.number().int().min(500).default(12000),
+  MCP_MAX_RESPONSE_CHARS: z.coerce.number().int().min(500).default(50000),
   MCP_MAX_ROWS_IN_RESPONSE: z.coerce.number().int().min(1).default(100),
   MCP_MAX_STRING_LENGTH: z.coerce.number().int().min(50).default(300),
   LOG_LEVEL: z.string().default('info'),

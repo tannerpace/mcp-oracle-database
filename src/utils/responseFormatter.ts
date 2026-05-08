@@ -71,10 +71,64 @@ function truncateRowStrings(row: Record<string, unknown>): { row: Record<string,
   return { row: nextRow, truncatedCount };
 }
 
+function compactArrayData(
+  toolName: string,
+  response: ResponseShape,
+  arr: unknown[]
+): { response: ResponseShape; summary: TruncationSummary } {
+  const originalRows = arr.length;
+  const cappedRows = arr.slice(0, config.MCP_MAX_ROWS_IN_RESPONSE);
+
+  let truncatedStringFields = 0;
+  const compactedRows = cappedRows.map((item) => {
+    if (!isRecord(item)) return item;
+    const { row: nextRow, truncatedCount } = truncateRowStrings(item);
+    truncatedStringFields += truncatedCount;
+    return nextRow;
+  });
+
+  const droppedRows = Math.max(0, originalRows - compactedRows.length);
+  const summary: TruncationSummary = {
+    maxResponseChars: config.MCP_MAX_RESPONSE_CHARS,
+    maxRowsInResponse: config.MCP_MAX_ROWS_IN_RESPONSE,
+    maxStringLength: config.MCP_MAX_STRING_LENGTH,
+    originalRows,
+    returnedRows: compactedRows.length,
+    droppedRows,
+    truncatedStringFields,
+    compactedForTokenEfficiency: true,
+  };
+
+  if (droppedRows > 0 || truncatedStringFields > 0) {
+    summary.dataLossWarning = [
+      droppedRows > 0 ? `${droppedRows} item(s) were dropped (MCP_MAX_ROWS_IN_RESPONSE=${config.MCP_MAX_ROWS_IN_RESPONSE}).` : '',
+      truncatedStringFields > 0 ? `${truncatedStringFields} string field(s) were truncated (MCP_MAX_STRING_LENGTH=${config.MCP_MAX_STRING_LENGTH}).` : '',
+    ].filter(Boolean).join(' ');
+
+    logger.warn('MCP response compacted due to token limits', {
+      tool: toolName,
+      originalRows,
+      returnedRows: compactedRows.length,
+      droppedRows,
+      truncatedStringFields,
+    });
+  }
+
+  return {
+    response: { ...response, data: compactedRows, _truncation: summary, _tool: toolName },
+    summary,
+  };
+}
+
 function compactQueryData(
   toolName: string,
   response: ResponseShape
 ): { response: ResponseShape; summary: TruncationSummary | null } {
+  // Discovery tools return data as a direct array (e.g. listTables → data: TableInfo[])
+  if (Array.isArray(response.data)) {
+    return compactArrayData(toolName, response, response.data);
+  }
+
   if (!isRecord(response.data) || !Array.isArray(response.data.rows)) {
     return { response, summary: null };
   }
@@ -192,7 +246,39 @@ export function formatToolResponse(toolName: string, result: unknown): string {
     return text;
   }
 
-  // Stage 1: halve the row count and retry
+  // Stage 1a: halve a direct array (discovery tools shape: data: T[])
+  if (Array.isArray(compacted.response.data)) {
+    const arr = compacted.response.data;
+    const halvedCount = Math.max(1, Math.floor(arr.length / 2));
+    const droppedByHalving = arr.length - halvedCount;
+
+    logger.warn('MCP array response over limit after compaction; halving item count', {
+      tool: toolName,
+      originalSerializedChars: text.length,
+      limit: config.MCP_MAX_RESPONSE_CHARS,
+      itemsBefore: arr.length,
+      itemsAfter: halvedCount,
+      droppedItems: droppedByHalving,
+      hint: 'Lower MCP_MAX_ROWS_IN_RESPONSE or raise MCP_MAX_RESPONSE_CHARS to avoid this.',
+    });
+
+    const reducedPayload: ResponseShape = {
+      ...compacted.response,
+      data: arr.slice(0, halvedCount),
+      _halved: {
+        warning: `Item count was halved from ${arr.length} to ${halvedCount} because the response exceeded MCP_MAX_RESPONSE_CHARS (${config.MCP_MAX_RESPONSE_CHARS}).`,
+        droppedItems: droppedByHalving,
+        remediation: `Lower MCP_MAX_ROWS_IN_RESPONSE (current: ${config.MCP_MAX_ROWS_IN_RESPONSE}) or raise MCP_MAX_RESPONSE_CHARS (current: ${config.MCP_MAX_RESPONSE_CHARS}).`,
+      },
+    };
+
+    text = JSON.stringify(reducedPayload);
+    if (text.length <= config.MCP_MAX_RESPONSE_CHARS) {
+      return text;
+    }
+  }
+
+  // Stage 1b: halve row count for SQL result shape (data: { rows: [...] })
   if (isRecord(compacted.response.data) && Array.isArray(compacted.response.data.rows)) {
     const rows = compacted.response.data.rows;
     const halvedCount = Math.max(1, Math.floor(rows.length / 2));
