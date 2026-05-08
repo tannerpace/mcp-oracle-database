@@ -1,12 +1,29 @@
-# Source files
+# Source and test directories
 src/
+tests/
 tsconfig.json
+vitest.config.ts
+
+# Exclude compiled dev/test utilities from dist
+dist/client.js
+dist/client.js.map
+dist/client.d.ts
+dist/client.d.ts.map
+dist/manualQuery.js
+dist/manualQuery.js.map
+dist/manualQuery.d.ts
+dist/manualQuery.d.ts.map
+dist/test-discovery.js
+dist/test-discovery.js.map
+dist/test-discovery.d.ts
+dist/test-discovery.d.ts.map
 
 # Development files
 .env
 .env.example
 *.log
 logs/
+*.tgz
 
 # VS Code
 .vscode/
@@ -20,11 +37,8 @@ docs/
 PLAN.md
 TESTING.md
 
-# Test files
-src/client.ts
-src/test-*.ts
-*.test.ts
-*.spec.ts
+# Husky git hooks
+.husky/
 
 # Build artifacts
 node_modules/

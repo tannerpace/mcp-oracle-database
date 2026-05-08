@@ -1,6 +1,6 @@
 {
   "name": "mcp-oracle-database",
-  "version": "1.0.0",
+  "version": "1.1.3",
   "description": "Model Context Protocol (MCP) server for database queries - enables AI assistants like GitHub Copilot to execute read-only SQL queries against Oracle databases",
   "main": "dist/server.js",
   "type": "module",
@@ -8,7 +8,17 @@
     "mcp-database-server": "dist/server.js"
   },
   "files": [
-    "dist/**/*",
+    "dist/server.js",
+    "dist/server.js.map",
+    "dist/server.d.ts",
+    "dist/server.d.ts.map",
+    "dist/config.js",
+    "dist/config.js.map",
+    "dist/config.d.ts",
+    "dist/config.d.ts.map",
+    "dist/database/",
+    "dist/tools/",
+    "dist/utils/",
     "README.md",
     "LICENSE"
   ],
@@ -21,7 +31,13 @@
     "test-query": "node dist/manualQuery.js",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run clean && npm run build"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "husky",
+    "prepublishOnly": "npm run typecheck && npm test && npm run clean && npm run build",
+    "release:patch": "npm version patch && git push && git push --tags && npm publish",
+    "release:minor": "npm version minor && git push && git push --tags && npm publish",
+    "release:major": "npm version major && git push && git push --tags && npm publish"
   },
   "keywords": [
     "mcp",
@@ -37,15 +53,15 @@
     "oracle-database"
   ],
   "author": "Tanner B",
-  "license": "ISC",
+  "license": "SEE LICENSE IN LICENSE.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tannerpace/my-mcp.git"
+    "url": "https://github.com/tannerpace/mcp-oracle-database.git"
   },
   "bugs": {
-    "url": "https://github.com/tannerpace/my-mcp/issues"
+    "url": "https://github.com/tannerpace/mcp-oracle-database/issues"
   },
-  "homepage": "https://github.com/tannerpace/my-mcp#readme",
+  "homepage": "https://github.com/tannerpace/mcp-oracle-database#readme",
   "engines": {
     "node": ">=18.17.0"
   },
@@ -57,6 +73,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.23",
-    "typescript": "^5.3.3"
+    "husky": "^9.1.7",
+    "typescript": "^5.3.3",
+    "vitest": "^4.1.5"
   }
 }
