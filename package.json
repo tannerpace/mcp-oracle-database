@@ -21,6 +21,9 @@
     "test-query": "node dist/manualQuery.js",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "husky",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "keywords": [
