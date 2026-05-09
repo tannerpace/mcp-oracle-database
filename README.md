@@ -3,7 +3,7 @@
 A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs to execute read-only SQL queries against Oracle databases.
 
 [![npm version](https://badge.fury.io/js/mcp-oracle-database.svg)](https://www.npmjs.com/package/mcp-oracle-database)
-[![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![License: Dual (GPLv3 / Commercial)](https://img.shields.io/badge/License-Dual%20GPLv3%20%2F%20Commercial-blue.svg)](./LICENSE.md)
 
 <a href="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database/badge" alt="Oracle Database Server MCP server" />
@@ -24,6 +24,7 @@ A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs
 9. [Security Considerations](#security-considerations)
 10. [Troubleshooting](#troubleshooting)
 11. [Documentation](#documentation)
+12. [Licensing](#licensing)
 
 ---
 
@@ -565,6 +566,48 @@ This project uses node-oracledb **Thin Mode** — a pure JavaScript driver that 
 
 > Oracle is a registered trademark of Oracle Corporation.
 > This project is not affiliated with, endorsed by, or sponsored by Oracle Corporation.
+
+---
+
+## Licensing
+
+This project uses a **dual licensing model**. You must comply with one of the two licenses below based on your use case.
+
+### 🟢 Open Source — GPLv3
+
+Free to use for **personal, academic, and non-commercial open-source** projects under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html). Derivative works must also be released under GPLv3.
+
+### 🔵 Commercial & Government — Paid License
+
+**A separate license is required for:**
+- Any commercial or for-profit use (products, SaaS, internal enterprise tooling)
+- All government use (agencies, departments, contractors)
+
+To obtain a commercial/government license, contact **Tanner Bleakley** at **[INSERT CONTACT EMAIL]**.
+
+📄 See [`LICENSE.md`](./LICENSE.md) for the full dual licensing overview.
+📄 See [`COMMERCIAL_LICENSE.md`](./COMMERCIAL_LICENSE.md) for commercial/government license terms.
+
+### Source File Header
+
+Include the following header in source files:
+
+```ts
+/*
+ * mcp-oracle-database
+ * Copyright (c) 2025 Tanner Bleakley
+ *
+ * Dual Licensed:
+ *   - GNU General Public License v3.0 (GPLv3) for open-source, non-commercial use.
+ *     See LICENSE or https://www.gnu.org/licenses/gpl-3.0.html
+ *   - Commercial & Government License for all commercial and government use.
+ *     See COMMERCIAL_LICENSE.md or contact [INSERT CONTACT EMAIL]
+ *
+ * You may not use this file except in compliance with one of the above licenses.
+ */
+```
+
+---
 
 ## Contributing
 
