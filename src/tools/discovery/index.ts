@@ -9,11 +9,11 @@
  * - suggestRelatedTables: Find related tables by various heuristics
  */
 
-export { listTables, ListTablesSchema, type ListTablesInput } from './listTables.js';
-export { describeTable, DescribeTableSchema, type DescribeTableInput } from './describeTable.js';
-export { getTableRelations, GetTableRelationsSchema, type GetTableRelationsInput } from './getTableRelations.js';
-export { getSampleValues, GetSampleValuesSchema, type GetSampleValuesInput } from './getSampleValues.js';
-export { suggestRelatedTables, SuggestRelatedTablesSchema, type SuggestRelatedTablesInput } from './suggestRelatedTables.js';
+export { DescribeTableSchema, describeTable, type DescribeTableInput } from './describeTable.js';
+export { GetSampleValuesSchema, getSampleValues, type GetSampleValuesInput } from './getSampleValues.js';
+export { GetTableRelationsSchema, getTableRelations, type GetTableRelationsInput } from './getTableRelations.js';
+export { ListTablesSchema, listTables, type ListTablesInput } from './listTables.js';
+export { SuggestRelatedTablesSchema, suggestRelatedTables, type SuggestRelatedTablesInput } from './suggestRelatedTables.js';
 
-export * from './types.js';
 export { schemaCache } from './cache.js';
+export * from './types.js';

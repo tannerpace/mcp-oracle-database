@@ -2,23 +2,23 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-  Tool,
+    CallToolRequestSchema,
+    ListToolsRequestSchema,
+    Tool,
 } from '@modelcontextprotocol/sdk/types.js';
 import getConfig from './config.js';
 import { closePool, getOrCreatePool } from './database/oracleConnection.js';
 import {
-  describeTable,
-  DescribeTableSchema,
-  getSampleValues,
-  GetSampleValuesSchema,
-  getTableRelations,
-  GetTableRelationsSchema,
-  listTables,
-  ListTablesSchema,
-  suggestRelatedTables,
-  SuggestRelatedTablesSchema,
+    describeTable,
+    DescribeTableSchema,
+    getSampleValues,
+    GetSampleValuesSchema,
+    getTableRelations,
+    GetTableRelationsSchema,
+    listTables,
+    ListTablesSchema,
+    suggestRelatedTables,
+    SuggestRelatedTablesSchema,
 } from './tools/discovery/index.js';
 import { getDatabaseSchema, GetSchemaSchema } from './tools/getSchema.js';
 import { queryDatabase, QueryDatabaseSchema } from './tools/queryDatabase.js';
