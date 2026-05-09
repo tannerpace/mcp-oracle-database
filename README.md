@@ -557,14 +557,6 @@ This project uses node-oracledb **Thin Mode** — a pure JavaScript driver that 
 - [Architecture Overview](./docs/ARCHITECTURE.md) — System architecture diagram
 - [Logging Configuration](./docs/LOGGING.md) — Logging setup and configuration
 
-🏗️ **Build Your Own MCP Server:**
-- [Quick Start Generator](./docs/QUICK-START-GENERATOR.md) — ⚡ 5-minute guide with copy-paste prompts
-- [Generator Examples](./docs/MCP-GENERATOR-EXAMPLES.md) — Ready-to-use prompts for PostgreSQL, MongoDB, Slack, and more
-- [MCP Project Generator Prompt](./docs/MCP-PROJECT-GENERATOR-PROMPT.md) — Comprehensive guide
-
-📦 **Publishing:**
-- [NPM Republish Plan](./docs/NPM-REPUBLISH-PLAN.md) — Steps to publish or update the npm package
-
 📝 **Custom Instructions:**
 - [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) — Project-wide Copilot instructions
 - [`.github/instructions/`](./.github/instructions/) — Language-specific coding guidelines

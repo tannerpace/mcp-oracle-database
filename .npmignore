@@ -17,14 +17,6 @@ dist/test-discovery.js
 dist/test-discovery.js.map
 dist/test-discovery.d.ts
 dist/test-discovery.d.ts.map
-dist/test-getschema-improvements.js
-dist/test-getschema-improvements.js.map
-dist/test-getschema-improvements.d.ts
-dist/test-getschema-improvements.d.ts.map
-dist/test-simple.js
-dist/test-simple.js.map
-dist/test-simple.d.ts
-dist/test-simple.d.ts.map
 
 # Development files
 .env
