@@ -584,24 +584,7 @@ Free to use for **personal, academic, and non-commercial open-source** projects 
 - All government use (agencies, departments, contractors)
 
 📄 See [`LICENSE.md`](./LICENSE.md) for the full dual licensing overview.
-📄 See [`COMMERCIAL_LICENSE.md`](./COMMERCIAL_LICENSE.md) for commercial/government license terms.
-
-### Source File Header
-
-Include the following header in source files:
-
-```ts
-/*
- * mcp-oracle-database
- * Copyright (c) 2025 Tanner Bleakley
- *
- * Dual Licensed:
- *   - GNU General Public License v3.0 (GPLv3) for open-source, non-commercial use.
- *     See LICENSE or https://www.gnu.org/licenses/gpl-3.0.html
- *   - Commercial & Government License for all commercial and government use.
- *     See COMMERCIAL_LICENSE.md
-/*
-```
+📄 See [`COMMERCIAL_LICENSE.md`](./COMMERCIAL_LICENSE.md) for commercial/government license terms
 
 ---
 
