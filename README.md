@@ -583,8 +583,6 @@ Free to use for **personal, academic, and non-commercial open-source** projects 
 - Any commercial or for-profit use (products, SaaS, internal enterprise tooling)
 - All government use (agencies, departments, contractors)
 
-To obtain a commercial/government license, contact **Tanner Bleakley** at **[INSERT CONTACT EMAIL]**.
-
 📄 See [`LICENSE.md`](./LICENSE.md) for the full dual licensing overview.
 📄 See [`COMMERCIAL_LICENSE.md`](./COMMERCIAL_LICENSE.md) for commercial/government license terms.
 
@@ -601,10 +599,8 @@ Include the following header in source files:
  *   - GNU General Public License v3.0 (GPLv3) for open-source, non-commercial use.
  *     See LICENSE or https://www.gnu.org/licenses/gpl-3.0.html
  *   - Commercial & Government License for all commercial and government use.
- *     See COMMERCIAL_LICENSE.md or contact [INSERT CONTACT EMAIL]
- *
- * You may not use this file except in compliance with one of the above licenses.
- */
+ *     See COMMERCIAL_LICENSE.md
+/*
 ```
 
 ---
