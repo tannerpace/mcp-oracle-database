@@ -1,65 +1,21 @@
 # Licensing
 
-## Dual Licensing Model
+## GNU General Public License v3.0
 
-**mcp-oracle-database** is available under two distinct licenses. You must choose **one** of the following based on your intended use.
+This repository is available under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html) (GPLv3). The complete GPLv3 text is included in the [`LICENSE`](./LICENSE) file in this repository.
 
----
+If you choose the GPLv3 option, you receive the rights granted by GPLv3 as written. No additional field-of-use restrictions apply to the GPLv3 license grant in this repository.
 
-## Option A — GNU General Public License v3 (GPLv3)
+## Alternative Commercial Licensing
 
-**For: Open-source, personal, academic, and non-commercial use**
+A separate commercial license may be available from the author for parties who want alternative terms, such as negotiated commercial terms, proprietary distribution rights, warranty commitments, or other arrangements that differ from GPLv3.
 
-This software is free to use, modify, and distribute under the terms of the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html) (GPLv3), provided that:
+For commercial licensing inquiries, contact:
 
-- Your use is **non-commercial** (no revenue generation, no for-profit activity).
-- You are **not** a government agency, department, contractor, or subcontractor acting on behalf of a government entity.
-- Any derivative works or distributions you create are also released under GPLv3 (copyleft).
-- You include a copy of the GPLv3 and prominent attribution to this project in any distribution.
+- **Tanner Bleakley**
+- 🌐 **https://tannerb.dev**
 
-The full text of the GNU General Public License v3.0 is included in the [`LICENSE`](./LICENSE) file in this repository and is also available at:
-<https://www.gnu.org/licenses/gpl-3.0.html>
-
-> **If you do not meet all of the conditions above, you may not use this software under GPLv3. You must obtain a commercial license (Option B).**
-
----
-
-## Option B — Commercial & Government License
-
-**For: Commercial use, for-profit use, and all government use**
-
-Use in any of the following contexts **requires explicit written permission** from the copyright holder and may require a paid license:
-
-- Any **commercial** activity (including SaaS products, internal business tooling, paid services, consulting, or any for-profit deployment).
-- Use by or on behalf of **government entities** (federal, state, local, or international agencies, contractors, or subcontractors operating under government contract).
-
-To obtain a commercial or government license, contact:
-
-🌐 **https://tannerb.dev**
-
-Please include the following in your inquiry:
-- Your name and organization
-- Intended use case and deployment environment
-- Whether use is commercial, governmental, or both
-
-The terms of the Commercial & Government License are detailed in [`COMMERCIAL_LICENSE.md`](./COMMERCIAL_LICENSE.md).
-
----
-
-## Which License Applies to You?
-
-| Use Case                                          | License Required        |
-|---------------------------------------------------|-------------------------|
-| Personal project (non-commercial)                 | GPLv3 (Option A)        |
-| Academic research (non-commercial)                | GPLv3 (Option A)        |
-| Open-source project (copyleft-compatible)         | GPLv3 (Option A)        |
-| Commercial product or SaaS                        | Commercial (Option B)   |
-| Internal business / enterprise tooling            | Commercial (Option B)   |
-| Government agency or department                   | Commercial (Option B)   |
-| Government contractor or subcontractor            | Commercial (Option B)   |
-| Consulting or professional services (for profit)  | Commercial (Option B)   |
-
----
+See [`COMMERCIAL_LICENSE.md`](./COMMERCIAL_LICENSE.md) for the separate commercial license terms.
 
 ## Disclaimer
 

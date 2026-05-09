@@ -7,7 +7,7 @@ Copyright (c) 2025 Tanner Bleakley. All rights reserved.
 
 ## Preamble
 
-This Commercial & Government License ("Agreement") governs all commercial and governmental use of the software known as **mcp-oracle-database** (the "Software"), developed and owned by **Tanner Bleakley** ("Licensor"). This Agreement applies in lieu of the GNU General Public License v3.0 for any Licensee whose use falls within the definitions of Commercial Use or Government Use as defined herein.
+This Commercial & Government License ("Agreement") governs use of the software known as **mcp-oracle-database** (the "Software"), developed and owned by **Tanner Bleakley** ("Licensor"), by any Licensee that obtains a separate commercial or government license from the Licensor. This Agreement is offered as an alternative to the GNU General Public License v3.0 for parties who want different terms.
 
 By using, copying, modifying, or distributing the Software under this Agreement, you ("Licensee") agree to be bound by these terms.
 
@@ -140,6 +140,6 @@ Please provide:
 
 ---
 
-*This Commercial & Government License is separate from and does not modify the GNU General Public License v3.0. The GPLv3 remains available for eligible open-source, non-commercial use as described in [`LICENSE.md`](./LICENSE.md).*
+*This Commercial & Government License is separate from and does not modify the GNU General Public License v3.0. Recipients may use the Software under GPLv3 as described in [`LICENSE`](./LICENSE) and [`LICENSE.md`](./LICENSE.md), or enter into a separate written commercial or government agreement with the Licensor for alternative terms.*
 
 *Copyright (c) 2025 Tanner Bleakley. All rights reserved.*

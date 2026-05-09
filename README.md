@@ -571,20 +571,18 @@ This project uses node-oracledb **Thin Mode** — a pure JavaScript driver that 
 
 ## Licensing
 
-This project uses a **dual licensing model**. You must comply with one of the two licenses below based on your use case.
+This project is available under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html) (GPLv3).
 
 ### 🟢 Open Source — GPLv3
 
-Free to use for **personal, academic, and non-commercial open-source** projects under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html). Derivative works must also be released under GPLv3.
+If you choose GPLv3, you receive GPLv3 rights as written, without additional field-of-use restrictions. See [`LICENSE`](./LICENSE) for the full license text and [`LICENSE.md`](./LICENSE.md) for a short licensing overview.
 
 ### 🔵 Commercial & Government — Paid License
 
-**A separate license is required for:**
-- Any commercial or for-profit use (products, SaaS, internal enterprise tooling)
-- All government use (agencies, departments, contractors)
+A separate commercial license may be available from the author for parties who want alternative terms, such as negotiated commercial terms, warranty commitments, or proprietary distribution rights.
 
-📄 See [`LICENSE.md`](./LICENSE.md) for the full dual licensing overview.
-📄 See [`COMMERCIAL_LICENSE.md`](./COMMERCIAL_LICENSE.md) for commercial/government license terms
+📄 See [`LICENSE.md`](./LICENSE.md) for the licensing overview.
+📄 See [`COMMERCIAL_LICENSE.md`](./COMMERCIAL_LICENSE.md) for the separate commercial/government license terms.
 
 ---
 
