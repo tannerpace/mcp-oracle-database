@@ -115,7 +115,7 @@ Upon termination, Licensee must immediately cease all use of the Software and de
 
 ## 11. Governing Law and Dispute Resolution
 
-This Agreement shall be governed by and construed in accordance with the laws of the **State of [INSERT STATE]**, without regard to its conflict-of-law provisions. Any disputes arising under this Agreement shall be subject to the exclusive jurisdiction of the state and federal courts located in **[INSERT COUNTY/JURISDICTION]**.
+This Agreement shall be governed by and construed in accordance with the laws of the **State of South Carolina**, without regard to its conflict-of-law provisions. Any disputes arising under this Agreement shall be subject to the exclusive jurisdiction of the state and federal courts located in **[INSERT COUNTY/JURISDICTION]**.
 
 ---
 
@@ -130,8 +130,7 @@ This Agreement, together with any written authorization or license agreement iss
 To inquire about or obtain a commercial or government license for this Software, contact:
 
 **Tanner Bleakley**
-📧 **[INSERT CONTACT EMAIL]**
-🌐 **[INSERT WEBSITE OR LICENSING PAGE URL]**
+🌐 **https://tannerb.dev**
 
 Please provide:
 - Your full name and organization name
