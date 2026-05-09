@@ -35,9 +35,7 @@ Use in any of the following contexts **requires explicit written permission** fr
 
 To obtain a commercial or government license, contact:
 
-**Tanner Bleakley**
-📧 **[INSERT CONTACT EMAIL]**
-🌐 **[INSERT WEBSITE OR LICENSING PAGE URL]**
+🌐 **https://tannerb.dev**
 
 Please include the following in your inquiry:
 - Your name and organization
@@ -60,27 +58,6 @@ The terms of the Commercial & Government License are detailed in [`COMMERCIAL_LI
 | Government agency or department                   | Commercial (Option B)   |
 | Government contractor or subcontractor            | Commercial (Option B)   |
 | Consulting or professional services (for profit)  | Commercial (Option B)   |
-
----
-
-## Source File Headers
-
-All source files in this repository include the following dual-licensing notice:
-
-```
-/*
- * mcp-oracle-database
- * Copyright (c) 2025 Tanner Bleakley
- *
- * Dual Licensed:
- *   - GNU General Public License v3.0 (GPLv3) for open-source, non-commercial use.
- *     See LICENSE or https://www.gnu.org/licenses/gpl-3.0.html
- *   - Commercial & Government License for all commercial and government use.
- *     See COMMERCIAL_LICENSE.md or contact [INSERT CONTACT EMAIL]
- *
- * You may not use this file except in compliance with one of the above licenses.
- */
-```
 
 ---
 
