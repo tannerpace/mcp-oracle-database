@@ -577,38 +577,3 @@ This project uses a **dual licensing model**. You must comply with one of the tw
 
 Free to use for **personal, academic, and non-commercial open-source** projects under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html). Derivative works must also be released under GPLv3.
 
-### 🔵 Commercial & Government — Paid License
-
-**A separate license is required for:**
-- Any commercial or for-profit use (products, SaaS, internal enterprise tooling)
-- All government use (agencies, departments, contractors)
-
-To obtain a commercial/government license, contact **Tanner Bleakley** at **<https://tannerb.dev>**.
-
-📄 See [`LICENSE.md`](./LICENSE.md) for the full dual licensing overview.
-📄 See [`COMMERCIAL_LICENSE.md`](./COMMERCIAL_LICENSE.md) for commercial/government license terms.
-
-### Source File Header
-
-Include the following header in source files:
-
-```ts
-/*
- * mcp-oracle-database
- * Copyright (c) 2025 Tanner Bleakley
- *
- * Dual Licensed:
- *   - GNU General Public License v3.0 (GPLv3) for open-source, non-commercial use.
- *     See LICENSE or https://www.gnu.org/licenses/gpl-3.0.html
- *   - Commercial & Government License for all commercial and government use.
- *     See COMMERCIAL_LICENSE.md or contact https://tannerb.dev
- *
- * You may not use this file except in compliance with one of the above licenses.
- */
-```
-
----
-
-## Contributing
-
-Contributions welcome! Please open an issue or pull request.
