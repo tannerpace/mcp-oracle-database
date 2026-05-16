@@ -53,7 +53,7 @@
     "oracle-database"
   ],
   "author": "Tanner B",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
     "url": "https://github.com/tannerpace/mcp-oracle-database.git"
