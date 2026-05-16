@@ -20,7 +20,7 @@ const timestamp = () => new Date().toISOString();
 
 // Configure log file path from environment variable
 const LOG_DIR = process.env.LOG_DIR || path.join(__dirname, '../../logs');
-const ENABLE_FILE_LOGGING = process.env.ENABLE_FILE_LOGGING === 'true';
+const ENABLE_FILE_LOGGING = process.env.ENABLE_FILE_LOGGING?.toLocaleLowerCase() === 'true';
 
 // Ensure log directory exists
 if (ENABLE_FILE_LOGGING && !fs.existsSync(LOG_DIR)) {
@@ -75,7 +75,7 @@ export const logger = {
 
 // Export audit function for compatibility with existing code
 export function audit(message: string, meta?: Record<string, unknown>) {
-  const enableAuditLogging = process.env.ENABLE_AUDIT_LOGGING === 'true';
+  const enableAuditLogging = process.env.ENABLE_AUDIT_LOGGING?.toLocaleLowerCase() === 'true';
   if (enableAuditLogging) {
     const metaStr = meta ? ` ${JSON.stringify(meta)}` : '';
     logger.info(`[AUDIT] ${message}${metaStr}`);

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { executeQuery } from '../database/queryExecutor.js';
-import logger from '../logging/logger.js';
+import logger from '../utils/logger.js';
 
 // Input schema for query_database tool
 export const QueryDatabaseSchema = z.object({

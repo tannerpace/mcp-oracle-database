@@ -1,6 +1,6 @@
 import oracledb from 'oracledb';
 import getConfig from '../config.js';
-import logger from '../logging/logger.js';
+import logger from '../utils/logger.js';
 import type { OraclePool, OraclePoolConfig } from './types.js';
 
 const config = getConfig();
@@ -9,7 +9,7 @@ let pool: OraclePool | null = null;
 let isClosing = false;
 
 /**
- * Create and return a connection pool for the read-only Oracle database
+ * Create and return a connection pool for the read-only Oracle database - note READ-ONLY credentials should be used, to prevent any accidental data modifications. Pool is created lazily on first request and reused for subsequent connections. Pool is closed gracefully on application shutdown.
  */
 export async function getOrCreatePool(): Promise<OraclePool> {
   if (pool) {
@@ -26,7 +26,7 @@ export async function getOrCreatePool(): Promise<OraclePool> {
   };
 
   try {
-    logger.info('Creating Oracle connection pool (read-only)', {
+    logger.info('Creating Oracle connection pool', {
       connectionString: poolConfig.connectionString,
       user: poolConfig.user,
       poolMin: poolConfig.poolMin,
