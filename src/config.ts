@@ -18,6 +18,20 @@ export const configSchema = z.object({
   MCP_MAX_STRING_LENGTH: z.coerce.number().int().min(50).default(300),
   LOG_LEVEL: z.string().default('info'),
   ENABLE_AUDIT_LOGGING: z.coerce.boolean().default(true),
+  ORACLE_TIMEZONE: z
+    .string()
+    .default(() => Intl.DateTimeFormat().resolvedOptions().timeZone)
+    .refine(
+      (tz) => {
+        try {
+          Intl.DateTimeFormat(undefined, { timeZone: tz });
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      { message: 'ORACLE_TIMEZONE must be a valid IANA timezone (e.g. America/New_York, UTC, Asia/Shanghai)' }
+    ),
   MCP_TRANSPORT: z.string().default('stdio'),
   SERVER_NAME: z.string().default('oracle-mcp-server'),
   SERVER_VERSION: z.string().default('1.0.0'),
