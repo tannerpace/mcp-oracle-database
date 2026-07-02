@@ -81,11 +81,38 @@ export async function executeQuery(
     connection = await getConnection();
 
     // Execute query with timeout and row limit
+    const db = oracledb as any;
     const result = await connection.execute(query, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
       maxRows,
       extendedMetaData: true,
-    });
+      fetchTypeHandler: (meta: any) => {
+        if (
+          meta.dbType === db.DB_TYPE_DATE ||
+          meta.dbType === db.DB_TYPE_TIMESTAMP ||
+          meta.dbType === db.DB_TYPE_TIMESTAMP_TZ ||
+          meta.dbType === db.DB_TYPE_TIMESTAMP_LTZ
+        ) {
+          return {
+            type: db.DB_TYPE_VARCHAR,
+            converter: (val: any) => {
+              if (val === null || val === undefined) return null;
+              const d = val instanceof Date ? val : new Date(val as string);
+              const parts = new Intl.DateTimeFormat('en-CA', {
+                timeZone: config.ORACLE_TIMEZONE,
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false,
+              }).formatToParts(d);
+              const get = (type: string) =>
+                parts.find((p: Intl.DateTimeFormatPart) => p.type === type)?.value ?? '00';
+              return `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}:${get('second')}`;
+            },
+          };
+        }
+        return undefined;
+      },
+    } as any);
 
     const executionTime = Date.now() - startTime;
 
