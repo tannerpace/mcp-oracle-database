@@ -11,6 +11,22 @@ A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs
 
 ---
 
+## ⚠️ Breaking Changes in v2.0
+
+### Date & Timestamp Formatting (v2.0)
+
+`DATE`, `TIMESTAMP`, `TIMESTAMP WITH TIME ZONE`, and `TIMESTAMP WITH LOCAL TIME ZONE` columns are now returned as **formatted strings** (`YYYY-MM-DD HH:mm:ss`) instead of raw JavaScript `Date` objects.
+
+The timezone used for formatting is controlled by the `ORACLE_TIMEZONE` environment variable (IANA timezone name). If not set, it defaults to the **server's system timezone**, which may differ across machines and produce inconsistent results.
+
+**Action required — add `ORACLE_TIMEZONE` to your `.env` or MCP `env` block:**
+
+```env
+ORACLE_TIMEZONE=UTC        # or your preferred timezone, e.g. America/Chicago
+```
+
+---
+
 ## Table of Contents
 
 1. [macOS Setup (Apple Silicon — M1/M2/M3/M4)](#-macos-setup-apple-silicon--m1m2m3m4)
@@ -147,6 +163,7 @@ Edit `.env` for local Oracle XE (good for trying it out):
 ORACLE_CONNECTION_STRING=localhost:1521/XE
 ORACLE_USER=system
 ORACLE_PASSWORD=OraclePwd123
+ORACLE_TIMEZONE=UTC
 ```
 
 For production use, create a dedicated read-only user first — see [Create a Read-Only User](#optional-create-a-read-only-user).
@@ -222,6 +239,7 @@ Create `.vscode/mcp.json` in your VS Code workspace (or add to your global MCP c
         "ORACLE_CONNECTION_STRING": "localhost:1521/XE",
         "ORACLE_USER": "system",
         "ORACLE_PASSWORD": "OraclePwd123",
+        "ORACLE_TIMEZONE": "UTC",
         "ORACLE_POOL_MIN": "2",
         "ORACLE_POOL_MAX": "10",
         "QUERY_TIMEOUT_MS": "30000",
@@ -250,6 +268,7 @@ Replace `/absolute/path/to/mcp-oracle-database` with the real path on your machi
         "ORACLE_CONNECTION_STRING": "localhost:1521/XE",
         "ORACLE_USER": "your_user",
         "ORACLE_PASSWORD": "your_password",
+        "ORACLE_TIMEZONE": "UTC",
         "ORACLE_POOL_MIN": "2",
         "ORACLE_POOL_MAX": "10",
         "QUERY_TIMEOUT_MS": "30000",
@@ -384,6 +403,9 @@ All settings can go in `.env` or as `env` keys in your VS Code MCP config.
 ORACLE_CONNECTION_STRING=localhost:1521/XE    # host:port/service
 ORACLE_USER=system
 ORACLE_PASSWORD=OraclePwd123
+
+# Timezone (REQUIRED for consistent date/timestamp output)
+ORACLE_TIMEZONE=UTC                          # IANA timezone, e.g. America/New_York
 
 # Connection Pool
 ORACLE_POOL_MIN=2
