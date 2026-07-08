@@ -2,10 +2,17 @@ import { z } from 'zod';
 import { executeQuery, getSchema } from '../database/queryExecutor.js';
 import type { QueryResult } from '../database/types.js';
 import logger from '../utils/logger.js';
+import { validateOracleIdentifier } from '../utils/validation.js';
 
 // Input schema for get_database_schema tool
 export const GetSchemaSchema = z.object({
-  tableName: z.string().optional(),
+  tableName: z
+    .string()
+    .optional()
+    .refine(
+      (val) => val === undefined || validateOracleIdentifier(val.toUpperCase()),
+      { message: 'tableName must be a valid Oracle identifier (letters, digits, _, $, # only; max 30 chars)' }
+    ),
 });
 
 export type GetSchemaInput = z.infer<typeof GetSchemaSchema>;
@@ -85,6 +92,16 @@ async function findSimilarTableNames(tableName: string): Promise<string[]> {
 export async function getDatabaseSchema(input: GetSchemaInput = {}) {
   try {
     const validated = GetSchemaSchema.parse(input);
+
+    // Defense-in-depth: validate identifier before it reaches the database layer.
+    // The Zod refinement above covers the normal path; this guard protects against
+    // any future code path that bypasses schema parsing.
+    if (validated.tableName && !validateOracleIdentifier(validated.tableName.toUpperCase())) {
+      return {
+        success: false,
+        error: 'Invalid table name: must be a valid Oracle identifier (letters, digits, _, $, # only; max 30 chars).',
+      };
+    }
 
     logger.info('Getting database schema via MCP tool', {
       tableName: validated.tableName || 'all tables',

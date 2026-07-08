@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mocks must be declared before any module imports that trigger side-effects.
 vi.mock('oracledb', () => ({ default: { OUT_FORMAT_OBJECT: 4 } }));
@@ -35,9 +35,11 @@ vi.mock('../src/utils/logger.js', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
 
+import { getConnection } from '../src/database/oracleConnection.js';
 import {
-    ensureReadOnlyQuery,
-    stripLeadingCommentsAndWhitespace,
+  ensureReadOnlyQuery,
+  getSchema,
+  stripLeadingCommentsAndWhitespace,
 } from '../src/database/queryExecutor.js';
 
 describe('stripLeadingCommentsAndWhitespace', () => {
@@ -149,5 +151,71 @@ describe('ensureReadOnlyQuery', () => {
 
   it('rejects a comment-only query', () => {
     expect(() => ensureReadOnlyQuery('-- comment only')).toThrow('Query cannot be empty');
+  });
+});
+
+describe('getSchema SQL injection prevention', () => {
+  function makeMockConnection() {
+    const calls: { sql: string; binds: unknown }[] = [];
+    const mockExecute = vi.fn((sql: string, binds: unknown) => {
+      calls.push({ sql, binds });
+      return Promise.resolve({ rows: [], metaData: [] });
+    });
+    return {
+      execute: mockExecute,
+      close: vi.fn().mockResolvedValue(undefined),
+      calls,
+    };
+  }
+
+  beforeEach(() => {
+    vi.mocked(getConnection).mockReset();
+  });
+
+  it('passes tableName as a bind variable — not interpolated into the SQL string', async () => {
+    const mock = makeMockConnection();
+    vi.mocked(getConnection).mockResolvedValue(mock as any);
+
+    const payload = "X') UNION SELECT username, account_status FROM all_users --";
+    await getSchema(payload).catch(() => { });
+
+    expect(mock.calls.length).toBeGreaterThan(0);
+    const { sql, binds } = mock.calls[0];
+
+    // The injection payload must NOT appear verbatim in the SQL string
+    expect(sql).not.toContain('UNION SELECT');
+    expect(sql).not.toContain(payload);
+
+    // The value must be passed as a positional bind, not concatenated
+    expect(Array.isArray(binds)).toBe(true);
+    expect((binds as unknown[])[0]).toBe(payload);
+  });
+
+  it('passes a valid table name as a bind variable', async () => {
+    const mock = makeMockConnection();
+    vi.mocked(getConnection).mockResolvedValue(mock as any);
+
+    await getSchema('EMPLOYEES').catch(() => { });
+
+    expect(mock.calls.length).toBeGreaterThan(0);
+    const { sql, binds } = mock.calls[0];
+
+    expect(sql).toContain(':tableName');
+    expect(Array.isArray(binds)).toBe(true);
+    expect((binds as unknown[])[0]).toBe('EMPLOYEES');
+  });
+
+  it('uses the all-tables query with empty binds when tableName is undefined', async () => {
+    const mock = makeMockConnection();
+    vi.mocked(getConnection).mockResolvedValue(mock as any);
+
+    await getSchema(undefined).catch(() => { });
+
+    expect(mock.calls.length).toBeGreaterThan(0);
+    const { sql, binds } = mock.calls[0];
+
+    expect(sql).toContain('user_tables');
+    expect(Array.isArray(binds)).toBe(true);
+    expect((binds as unknown[]).length).toBe(0);
   });
 });

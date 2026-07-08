@@ -61,7 +61,7 @@ export function ensureReadOnlyQuery(query: string): void {
  */
 export async function executeQuery(
   query: string,
-  options: { maxRows?: number; timeout?: number } = {}
+  options: { maxRows?: number; timeout?: number; binds?: unknown[] } = {}
 ): Promise<QueryResult> {
   const maxRows = options.maxRows || config.MAX_ROWS_PER_QUERY;
   const startTime = Date.now();
@@ -82,7 +82,7 @@ export async function executeQuery(
 
     // Execute query with timeout and row limit
     const db = oracledb as any;
-    const result = await connection.execute(query, [], {
+    const result = await connection.execute(query, (options.binds ?? []) as any[], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
       maxRows,
       extendedMetaData: true,
@@ -175,7 +175,7 @@ export async function getSchema(tableName?: string): Promise<any> {
   let query: string;
 
   if (tableName) {
-    // Get columns for specific table
+    // Get columns for specific table — use a bind variable to prevent SQL injection
     query = `
       SELECT 
         column_name,
@@ -183,7 +183,7 @@ export async function getSchema(tableName?: string): Promise<any> {
         data_length,
         nullable
       FROM user_tab_columns
-      WHERE table_name = UPPER('${tableName}')
+      WHERE table_name = UPPER(:tableName)
       ORDER BY column_id
     `;
   } else {
@@ -197,5 +197,5 @@ export async function getSchema(tableName?: string): Promise<any> {
     `;
   }
 
-  return executeQuery(query, { maxRows: 1000 });
+  return executeQuery(query, { maxRows: 1000, binds: tableName ? [tableName] : [] });
 }

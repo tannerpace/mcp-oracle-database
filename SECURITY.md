@@ -33,6 +33,30 @@ When reporting, please include:
 - Steps to reproduce or a proof-of-concept
 - Any suggested mitigations or fixes
 
+## Security Fixes
+
+### CWE-89 SQL Injection in `get_database_schema` (fixed in v4.2.0)
+
+The `tableName` argument of the `get_database_schema` tool was previously interpolated
+directly into a SQL string literal, enabling UNION-based injection by anyone who could
+influence the argument (directly or via prompt injection in agent deployments).
+
+**Remediation (released in v4.2.0):**
+- `tableName` is now passed as an Oracle bind variable (`:tableName`) — it is never
+  concatenated into the query string.
+- A Zod schema refinement and an explicit guard in the handler validate `tableName`
+  against the Oracle identifier regex (`/^[A-Z][A-Z0-9_$#]{0,29}$/`) before any
+  database interaction occurs.
+- `validateOracleIdentifier()` is now a shared utility consumed by both
+  `get_database_schema` and the existing `get_sample_values` tool.
+
+**Impact scope:** Any deployment that exposed `get_database_schema` to untrusted or
+model-generated input. Confidentiality impact was bounded by the connection's
+SELECT privileges; using a least-privilege read-only role limits but did not
+previously remove the risk.
+
+---
+
 ## Security Best Practices
 
 When deploying this MCP server:

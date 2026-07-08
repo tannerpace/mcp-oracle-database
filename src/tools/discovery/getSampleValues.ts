@@ -2,17 +2,8 @@ import oracledb from 'oracledb';
 import { z } from 'zod';
 import { getConnection } from '../../database/oracleConnection.js';
 import logger, { audit } from '../../utils/logger.js';
+import { validateOracleIdentifier } from '../../utils/validation.js';
 import type { SampleValue } from './types.js';
-
-/**
- * Validate Oracle identifier (table/column name) to prevent SQL injection
- * Oracle identifiers: max 30 chars, start with letter, contain only letters, digits, _, $, #
- */
-function validateOracleIdentifier(identifier: string): boolean {
-  // Oracle identifier rules: 1-30 chars, starts with letter, contains A-Z0-9_$#
-  const pattern = /^[A-Z][A-Z0-9_$#]{0,29}$/;
-  return pattern.test(identifier);
-}
 
 // Input schema for getSampleValues tool
 export const GetSampleValuesSchema = z.object({
