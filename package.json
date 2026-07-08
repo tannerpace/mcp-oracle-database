@@ -56,7 +56,7 @@
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tannerpace/mcp-oracle-database.git"
+    "url": "git+https://github.com/tannerpace/mcp-oracle-database.git"
   },
   "bugs": {
     "url": "https://github.com/tannerpace/mcp-oracle-database/issues"
