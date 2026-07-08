@@ -3,7 +3,7 @@
 A Model Context Protocol (MCP) server that enables GitHub Copilot and other LLMs to execute read-only SQL queries against Oracle databases.
 
 [![npm version](https://badge.fury.io/js/mcp-oracle-database.svg)](https://www.npmjs.com/package/mcp-oracle-database)
-[![License: Dual (GPLv3 / Commercial)](https://img.shields.io/badge/License-Dual%20GPLv3%20%2F%20Commercial-blue.svg)](./LICENSE.md)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](./LICENSE.md)
 
 <a href="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@tannerpace/mcp-oracle-database/badge" alt="Oracle Database Server MCP server" />
@@ -583,6 +583,16 @@ This project uses node-oracledb **Thin Mode** — a pure JavaScript driver that 
 📝 **Custom Instructions:**
 - [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) — Project-wide Copilot instructions
 - [`.github/instructions/`](./.github/instructions/) — Language-specific coding guidelines
+
+---
+
+## Licensing
+
+This project is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](./LICENSE.md).
+
+You are free to use, modify, and distribute this software under the terms of the AGPL-3.0. Any modified version deployed as a network service must make its source code available to users of that service.
+
+See [LICENSE.md](./LICENSE.md) for the full license text.
 
 ---
 
