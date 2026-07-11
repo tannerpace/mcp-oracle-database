@@ -2,6 +2,7 @@
 var addSorting = (function () {
   'use strict';
   var cols,
+    rowData = new WeakMap(),
     currentSort = {
       index: 0,
       desc: false
@@ -114,15 +115,15 @@ var addSorting = (function () {
       i;
 
     for (i = 0; i < rows.length; i += 1) {
-      rows[i].data = loadRowData(rows[i]);
+      rowData.set(rows[i], loadRowData(rows[i]));
     }
   }
   // sorts the table using the data for the ith column
   function sortByIndex(index, desc) {
     var key = cols[index].key,
       sorter = function (a, b) {
-        a = a.data[key];
-        b = b.data[key];
+        a = rowData.get(a)[key];
+        b = rowData.get(b)[key];
         return a < b ? -1 : a > b ? 1 : 0;
       },
       finalSorter = sorter,
