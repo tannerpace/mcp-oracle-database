@@ -1,6 +1,6 @@
 {
   "name": "mcp-oracle-database",
-  "version": "4.1.3",
+  "version": "4.1.4",
   "description": "Model Context Protocol (MCP) server for database queries - enables AI assistants like GitHub Copilot to execute read-only SQL queries against Oracle databases",
   "main": "dist/server.js",
   "type": "module",
